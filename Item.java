@@ -22,4 +22,26 @@ public class Item {
 		this.price = price;
 		this.manuID = manuID;
 	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public String[] getTypeVariables() {
+		return typeVariables;
+	}
+
+	public String getPrice() {
+		return price;
+	}
+
+	public String getManuID() {
+		return manuID;
+	}
+	
+	
 }

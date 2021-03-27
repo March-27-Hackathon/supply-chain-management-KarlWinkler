@@ -74,12 +74,14 @@ public class SupplyChainManager {
 		return null;
 		
 	}
-//	public void testPrint(ArrayList<Item> toPrint) {
-//		for(Item) {
-//			
-//		}
-//	}
-//	
+	
+	private ArrayList<Item> selectBestCombination(ArrayList<Item> items){
+		
+		
+		
+		return null;
+	}
+
 	public static void main(String[] args) {
 
 		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/competition","ensf409","ensf409");
