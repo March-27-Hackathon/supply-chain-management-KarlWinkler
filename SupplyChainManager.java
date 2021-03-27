@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -24,8 +25,67 @@ public class SupplyChainManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean run(String name, String tableName, String quantity) {
+		int quant = Integer.valueOf(quantity);
+		try {
+			ArrayList<ArrayList<Item>> allCombos = new ArrayList<ArrayList<Item>>();
+			for(int i = 0; i < quant; i++) {
+				ArrayList<Item> a = selectBestCombination(selectItem(name, tableName));
+				allCombos.add(a);
+				for(Item e : a) {
+					deleteID(e.getId(), tableName);
+				}
+			}
+
+				
+			
+			ArrayList<String> ids = new ArrayList<String>();
+			int sum = 0;
+			for(ArrayList<Item> a : allCombos) {
+				for(Item e : a) {
+					sum += Integer.valueOf(e.getPrice());
+					ids.add(e.getId());
+					System.out.println(e.getId());
+				}
+				OutFile f = new OutFile(name + tableName, quantity, ids, sum);
+
+				f.writeOutFile();
+			}
+			
+
+		} catch (NoValidCombinationsException e2) {
+			try {
+				OutFile f = new OutFile(name + tableName, quantity, new ArrayList<String>());
+				f.writeNoneAvailable();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (IOException e1) {
+
+		} catch (Exception e3) {
+
+		}
+		return true;
+
+
 
 	}
+
+	private void deleteID(String id, String tableName) {
+		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
+		try {
+			Statement newStmt = dbConnect.createStatement();
+			newStmt.executeUpdate(query);
+			newStmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 
 	/**
 	 * selects all the desired items from the table
@@ -34,8 +94,8 @@ public class SupplyChainManager {
 	 * @param tableName name of the table the item belongs to
 	 * @return returns an array with all of the results of the query
 	 */
-	public ArrayList<Item> SelectItem(String name, String tableName){
-		String query = "SELECT * FROM "+ tableName + "WHERE Type = '" + name + "'" ;
+	public ArrayList<Item> selectItem(String name, String tableName){
+		String query = "SELECT * FROM "+ tableName + " WHERE Type = \'" + name + "\'" ;
 		ArrayList<Item> outputArray = new ArrayList<Item>();
 		try {
 			Statement newStmt = dbConnect.createStatement();
@@ -93,27 +153,34 @@ public class SupplyChainManager {
 	 * finds the best combination of items out of the desired list
 	 * @param items a set of items
 	 * @return the combination of items that fulfills the requirements the cheapest
+	 * @throws Exception if there are no valid combos
 	 */
-	private ArrayList<Item> selectBestCombination(ArrayList<Item> items){
+	private ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
 
-		int varsLength = items.get(0).getTypeVariables()[0].length();
+		int varsLength = items.get(0).getTypeVariables().length;
 		ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
 
 		for(int i = 0; i < varsLength; i++) {
+			parts.add(new ArrayList<Item>());
 			for(Item a : items) {
 				if(a.getTypeVariables()[i].equals("Y")) {
 					parts.get(i).add(a);
 				}
 			}
 		}
-		//TODO make sure there is a valid combination
-		
+
+		for(ArrayList<Item> i : parts) {
+			if(i.size() < 1) {
+				throw new NoValidCombinationsException("No valid combinations");
+			}
+		}
+
 		ArrayList<ArrayList<Item>> combinations = createCombinations(parts);
-		
+
 		combinations = removeDuplicates(combinations);
-		
+
 		ArrayList<Integer> priceArray = getPriceForCombinations(combinations);
-		
+
 		int min = priceArray.get(0); //finding the minimum combination
 		int index = 0;
 		for(int i = 0; i < priceArray.size(); i++) {
@@ -122,7 +189,7 @@ public class SupplyChainManager {
 				index = i;
 			}
 		}
-		
+
 		return combinations.get(index);
 	}
 
@@ -132,6 +199,7 @@ public class SupplyChainManager {
 	 * @return an array of prices
 	 */
 	private  ArrayList<Integer> getPriceForCombinations(ArrayList<ArrayList<Item>> arr){
+
 		ArrayList<Integer> prices = new ArrayList<Integer>();
 		for(int i = 0; i < arr.size(); i++) {
 			int sum = 0;
@@ -140,17 +208,17 @@ public class SupplyChainManager {
 			}
 			prices.add(sum);
 		}
-		
+
 		return prices;
 	}
-	
+
 	/**
 	 * deletes all duplicate items from combinations
 	 * @param toChange array of combinations
 	 * @return returns teh edited combinaitions
 	 */
 	private ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
-		
+
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
 				for(int k = j + 1; k < toChange.get(i).size(); k++) {
@@ -160,9 +228,9 @@ public class SupplyChainManager {
 				}
 			}
 		}
-		
+
 		return toChange;
-		
+
 	}
 
 	/**
@@ -202,7 +270,19 @@ public class SupplyChainManager {
 
 	public static void main(String[] args) {
 
-		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/competition","ensf409","ensf409");
+		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","ensf409","ensf409");
 		myJDBC.initializeConnection();
+
+		myJDBC.run("Small", "filing", "2");
+
 	}	
+}
+
+class NoValidCombinationsException extends Exception{
+
+	private static final long serialVersionUID = 1L;
+
+	public NoValidCombinationsException(String message) {
+		super(message);
+	}
 }
