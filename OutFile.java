@@ -44,21 +44,47 @@ public class OutFile {
 		filewrite.write("Date:"+"\n");
 		filewrite.write("\n"+"Original Request:"+ Request +", " + Quantity +"\n");
 		filewrite.write("\n"+"Order cannot be fulfilled based on current inventory. Suggested manufacturers are ");
-		if(companies.size() > 0) {
-			filewrite.write(companies.get(0));
-		}
 		
-		for(int i = 1; i < companies.size(); i++){
-			filewrite.write(", " + companies.get(i));
+		String ManNotIncluded1="";
+		String ManNotIncluded2="";
+		if(Request.equals("chair")||Request.equals("Chair")){
+			ManNotIncluded1="Academic Desks";
 		}
-		filewrite.write(".");
+		else if(Request.equals("desk")||Request.equals("Desk")){
+			ManNotIncluded1="Chairs R Us";
+		}
+		else if(Request.equals("lamp")||Request.equals("Lamp")){
+			ManNotIncluded1="Academic Desks";
+			ManNotIncluded2="Chairs R Us";
+		}
+		else if(Request.equals("filing")||Request.equals("Filing")){
+			ManNotIncluded1="Academic Desks";
+			ManNotIncluded2="Chairs R Us";
+		}
+		ArrayList <String> contactMan = new ArrayList <String> ();
+		for(int i = 0; i < companies.size(); i++){
+			if(companies.size() > 0 && !(companies.get(i).equals(ManNotIncluded1)) && !(companies.get(i).equals(ManNotIncluded2) )){
+				contactMan.add(companies.get(i));
+				contactMan.add(", ");
+			}
+		}
+		contactMan.set(contactMan.size()-1,".");
+		for(int j=0; j< contactMan.size();j++){
+			filewrite.write(contactMan.get(j));
+		}
 		filewrite.close();
 	}
-	/*
+	/* test
 	public static void main (String [] args) throws IOException{
-		String [] idt ={"c1234","c5678"};
-		OutFile test =new OutFile ("chair","2",idt,123);
-		test.outFile();
-	}
-	*/
+		ArrayList <String> ts=new ArrayList <String> ();
+		ts.add("Academic Desks");
+		ts.add("Office Furnishing");
+		ts.add("Chairs R Us");
+		ts.add("Furniture Goods");
+		ts.add("Fine Office Supplies");
+
+		OutFile test =new OutFile ("desk","2",ts);
+		test.writeNoneAvailable();
+	}*/
+	
 }
