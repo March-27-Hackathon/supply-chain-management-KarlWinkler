@@ -310,12 +310,25 @@ public class SupplyChainManager {
 		return returnArray;
 	}
 
+	/**
+	 * given three command line arguments : ItemName, TableName, quantity : 
+	 * it will run the supply chain manager to give the cheapest combination of 
+	 * items to build a full one or give recommendations for manufacturers that 
+	 * sell the items you are looking for if the program can't build a full item
+	 * from the current stock.
+	 * @param args uses three arguments (ItemName, TableName, quantity)
+	 */
 	public static void main(String[] args) {
 
+		if(args.length > 3) {
+			System.err.print("Please supply three arguments (ItemName, TableName, quantity)");
+			return;
+		}
+		
 		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","ensf409","ensf409");
 		myJDBC.initializeConnection();
 
-		myJDBC.run("Standing", "desk", "2");
+		myJDBC.run(args[0], args[1], args[2]);
 
 	}	
 }
