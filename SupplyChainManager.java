@@ -57,7 +57,7 @@ public class SupplyChainManager {
 					ids.add(e.getId());
 					System.out.println(e.getId());
 				}
-				OutFile f = new OutFile(name + tableName, quantity, ids, sum);
+				OutFile f = new OutFile(name + " " + tableName, quantity, ids, sum);
 
 				f.writeOutFile();
 			}
@@ -66,8 +66,8 @@ public class SupplyChainManager {
 		} catch (NoValidCombinationsException e2) {
 			try {
 				//prints out a form saying that no Item could be created
-				OutFile f = new OutFile(name + tableName, quantity, new ArrayList<String>());
-				f.writeNoneAvailable();
+				OutFile f = new OutFile(tableName, quantity, selectManufacturers());
+				f.writeNoneAvailable(name);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -125,6 +125,25 @@ public class SupplyChainManager {
 		}
 		return outputArray;
 	}
+	
+	public ArrayList<String> selectManufacturers(){
+		String query = "SELECT * FROM manufacturer";
+		ArrayList<String> outputArray = new ArrayList<String>();
+		try {
+			Statement newStmt = dbConnect.createStatement();
+			//put results into an array to output
+			results = newStmt.executeQuery(query);
+			while(results.next()) {
+				outputArray.add(results.getString("Name"));
+			}
+
+			newStmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return outputArray;
+	}
+	
 
 	/**
 	 * creates a new Item based on what the tableName is.

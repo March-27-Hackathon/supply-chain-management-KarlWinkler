@@ -36,13 +36,13 @@ public class OutFile {
 		filewrite.close();
 	}
 	
-	public void writeNoneAvailable() throws IOException {
+	public void writeNoneAvailable(String name) throws IOException {
 		FileWriter filewrite = new FileWriter (filename, false);
 		filewrite.write("Furniture Order Form"+"\n");
 		filewrite.write("\n"+"Faculty Name:"+"\n");
 		filewrite.write("Contact:"+"\n");
 		filewrite.write("Date:"+"\n");
-		filewrite.write("\n"+"Original Request:"+ Request +", " + Quantity +"\n");
+		filewrite.write("\n"+"Original Request:"+ name + " " + Request +", " + Quantity +"\n");
 		filewrite.write("\n"+"Order cannot be fulfilled based on current inventory. Suggested manufacturers are ");
 		
 		String ManNotIncluded1="";
@@ -74,6 +74,7 @@ public class OutFile {
 		}
 		filewrite.close();
 	}
+	
 	/* test
 	public static void main (String [] args) throws IOException{
 		ArrayList <String> ts=new ArrayList <String> ();
