@@ -1,1 +1,1 @@
-# supply-chain-management-KarlWinkler
+# supply-chain-management
