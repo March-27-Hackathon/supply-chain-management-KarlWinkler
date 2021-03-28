@@ -18,7 +18,6 @@ public class SupplyChainManager {
 		this.PASSWORD = password;
 	}
 
-	//ok
 	private void initializeConnection() {
 		try{
 			dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
@@ -27,12 +26,21 @@ public class SupplyChainManager {
 		}
 	}
 
+	/**
+	 * this is chaos
+	 * @param name name of the item
+	 * @param tableName name of the type of item
+	 * @param quantity how many items
+	 * @return boolean of whether the item was found or not (not used)
+	 */
 	public boolean run(String name, String tableName, String quantity) {
 		int quant = Integer.valueOf(quantity);
 		try {
+			//selects the best combos and deletes the items out of the database
+			//throws NoValidCombinationException if there is no way to make a full item
 			ArrayList<ArrayList<Item>> allCombos = new ArrayList<ArrayList<Item>>();
 			for(int i = 0; i < quant; i++) {
-				ArrayList<Item> a = selectBestCombination(selectItem(name, tableName));
+				ArrayList<Item> a = selectBestCombination(selectItem(name, tableName));//throws NoValidCombinationException
 				allCombos.add(a);
 				for(Item e : a) {
 					deleteID(e.getId(), tableName);
@@ -40,7 +48,7 @@ public class SupplyChainManager {
 			}
 
 				
-			
+			//prints out a form for all of the items required to make the desired amount of items
 			ArrayList<String> ids = new ArrayList<String>();
 			int sum = 0;
 			for(ArrayList<Item> a : allCombos) {
@@ -57,6 +65,7 @@ public class SupplyChainManager {
 
 		} catch (NoValidCombinationsException e2) {
 			try {
+				//prints out a form saying that no Item could be created
 				OutFile f = new OutFile(name + tableName, quantity, new ArrayList<String>());
 				f.writeNoneAvailable();
 			} catch (IOException e) {
@@ -74,6 +83,11 @@ public class SupplyChainManager {
 
 	}
 
+	/**
+	 * deletes an Item with ID id out of the database
+	 * @param id ID of the item to be deleted
+	 * @param tableName table to delete the item from
+	 */
 	private void deleteID(String id, String tableName) {
 		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
 		try {
@@ -99,7 +113,7 @@ public class SupplyChainManager {
 		ArrayList<Item> outputArray = new ArrayList<Item>();
 		try {
 			Statement newStmt = dbConnect.createStatement();
-
+			//put results into an array to output
 			results = newStmt.executeQuery(query);
 			while(results.next()) {
 				outputArray.add(newItem(results, tableName));
@@ -113,7 +127,9 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * creates a new Item based on what type it is
+	 * creates a new Item based on what the tableName is.
+	 * Using a switch statement to select the name, then creating an array of 
+	 * the items parts data (Y/N) then creating a new item based on the data
 	 * @param result result set from a query
 	 * @param tableName table that the query was performed on
 	 * @return new Item object
@@ -158,19 +174,26 @@ public class SupplyChainManager {
 	private ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
 
 		int varsLength = items.get(0).getTypeVariables().length;
+		// parts holds an array of arrays of items that have each part
+		//		example
+		//partA: item1, item2, item4
+		//partB: item2, item3
+		//partC: item5
 		ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
 
+		//puts items into sub-arrays based on whether they have parts or not
 		for(int i = 0; i < varsLength; i++) {
 			parts.add(new ArrayList<Item>());
 			for(Item a : items) {
-				if(a.getTypeVariables()[i].equals("Y")) {
+				if(a.getTypeVariables()[i].equals("Y")) {// if the variable = 'Y'
 					parts.get(i).add(a);
 				}
 			}
 		}
-
+		//check if it is possible to create a full item
 		for(ArrayList<Item> i : parts) {
 			if(i.size() < 1) {
+				//if not, throw ...
 				throw new NoValidCombinationsException("No valid combinations");
 			}
 		}
@@ -273,7 +296,7 @@ public class SupplyChainManager {
 		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","ensf409","ensf409");
 		myJDBC.initializeConnection();
 
-		myJDBC.run("Small", "filing", "2");
+		myJDBC.run("Standing", "desk", "2");
 
 	}	
 }
