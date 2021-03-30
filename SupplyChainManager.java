@@ -324,8 +324,8 @@ public class SupplyChainManager {
 			System.err.print("Please supply three arguments (ItemName, TableName, quantity)");
 			return;
 		}
-		
-		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","ensf409","ensf409");
+		//change this to your MySQL account stuff
+		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","scm","ensf409");
 		myJDBC.initializeConnection();
 
 		myJDBC.run(args[0], args[1], args[2]);
