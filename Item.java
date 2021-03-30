@@ -32,7 +32,7 @@ public class Item {
 	public String getType() {
 		return type;
 	}
-
+	
 	public String[] getTypeVariables() {
 		return typeVariables;
 	}
