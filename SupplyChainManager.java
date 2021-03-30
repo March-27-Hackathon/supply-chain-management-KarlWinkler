@@ -5,14 +5,16 @@
 */
 /*
 In this program, we need to design an application to calculate the cheapest combination of 
-available inventory items that can be used to fill a specific order.
-This application should connect with a database, which records all the information of the 
+available inventory items that can be used to fill a specific order. For example, if someone
+need a new chair, the application should look through the database and find all the components
+which can be combined and build a new chair.
+It should connect with a database, which records all the information of the 
 inventories such as ID, type, price, manufacturer, and condition. The application should find 
 the best plan to combine a new furniture we need. 
 The best plan must have the good condition and lowest price.
-Take in user input for 1) a furniture category, 2) its type, and 3) the number of items requested.
-2. Calculate and output the cheapest option for creating the requested pieces of furniture or 
-specify if the request is not possible to fill.
+It should accept the users' input for 1) a furniture category, 2) its type, and 3) the number of 
+items requested and calculate and output the cheapest option for creating the requested pieces of
+furniture or specify if the request is not possible to fill.
 */
 
 import java.io.IOException;
