@@ -1,3 +1,20 @@
+/**
+@author 
+@version 
+@since 1.0
+*/
+/*
+In this program, we need to design an application to calculate the cheapest combination of 
+available inventory items that can be used to fill a specific order.
+This application should connect with a database, which records all the information of the 
+inventories such as ID, type, price, manufacturer, and condition. The application should find 
+the best plan to combine a new furniture we need. 
+The best plan must have the good condition and lowest price.
+Take in user input for 1) a furniture category, 2) its type, and 3) the number of items requested.
+2. Calculate and output the cheapest option for creating the requested pieces of furniture or 
+specify if the request is not possible to fill.
+*/
+
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,28 +28,34 @@ public class SupplyChainManager {
 	private Connection dbConnect;
 	private ResultSet results;
 
-	//constructor I guess
+	//constructor with three arguments, which are the URL of the database, the username
+	//and the password of the local host
 	public SupplyChainManager(String databaseURL, String username, String password){
 		this.DBURL =  databaseURL; 
 		this.USERNAME = username;
 		this.PASSWORD = password;
 	}
 
+	//method initializeConnection is used for connect to the database driver
 	private void initializeConnection() {
 		try{
 			dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
 		} catch (SQLException e) {
+			//if failed, throw an SQLException
 			e.printStackTrace();
 		}
 	}
 
 	/**
 	 * this is chaos
+	 * method run is used for finding the corresponding items in the database. There are
+	   three arguments, which are name, tableName, and quantity.
 	 * @param name name of the item
 	 * @param tableName name of the type of item
 	 * @param quantity how many items
 	 * @return boolean of whether the item was found or not (not used)
 	 */
+	
 	public boolean run(String name, String tableName, String quantity) {
 		int quant = Integer.valueOf(quantity);
 		try {
@@ -61,8 +84,6 @@ public class SupplyChainManager {
 
 				f.writeOutFile();
 			}
-			
-
 		} catch (NoValidCombinationsException e2) {
 			try {
 				//prints out a form saying that no Item could be created
@@ -84,7 +105,8 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * deletes an Item with ID id out of the database
+	 * method deleteID is used for deleting an Item with a specified ID id out of the database
+	   There are two arguments, id and tableName
 	 * @param id ID of the item to be deleted
 	 * @param tableName table to delete the item from
 	 */
@@ -92,7 +114,9 @@ public class SupplyChainManager {
 		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
 		try {
 			Statement newStmt = dbConnect.createStatement();
+			//execute the statement
 			newStmt.executeUpdate(query);
+			//release the data
 			newStmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -102,8 +126,8 @@ public class SupplyChainManager {
 
 
 	/**
-	 * selects all the desired items from the table
-	 * 
+	 * method selectItem, which is used for selecting all the desired items from the table
+	   There are two parameters, name and tableName
 	 * @param name name of the item
 	 * @param tableName name of the table the item belongs to
 	 * @return returns an array with all of the results of the query
@@ -118,7 +142,7 @@ public class SupplyChainManager {
 			while(results.next()) {
 				outputArray.add(newItem(results, tableName));
 			}
-
+			//release the data
 			newStmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -126,6 +150,10 @@ public class SupplyChainManager {
 		return outputArray;
 	}
 	
+	/**
+	 * method selectManufacturers, which is used for selecting the items with the 
+	   specified manufactures from the table. There is no argument.
+	 */
 	public ArrayList<String> selectManufacturers(){
 		String query = "SELECT * FROM manufacturer";
 		ArrayList<String> outputArray = new ArrayList<String>();
@@ -136,7 +164,7 @@ public class SupplyChainManager {
 			while(results.next()) {
 				outputArray.add(results.getString("Name"));
 			}
-
+			//release the data
 			newStmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -146,8 +174,8 @@ public class SupplyChainManager {
 	
 
 	/**
-	 * creates a new Item based on what the tableName is.
-	 * Using a switch statement to select the name, then creating an array of 
+	 * method newItem, which is used for creating a new Item based on what the tableName is.
+	 * It uses a switch statement to select the name, then creating an array of 
 	 * the items parts data (Y/N) then creating a new item based on the data
 	 * @param result result set from a query
 	 * @param tableName table that the query was performed on
@@ -156,22 +184,22 @@ public class SupplyChainManager {
 	private Item newItem(ResultSet result, String tableName) {
 		try {
 			switch(tableName) {
+			//if chairs are needed
 			case "chair":
 				String[] tableVars = {results.getString("Legs"), results.getString("Arms"), results.getString("Seat"), results.getString("Cushion")};
 				return new Item(results.getString("ID"), results.getString("Type"),tableVars ,results.getString("Price"), results.getString("ManuID"));
-
+			//if desks are needed
 			case "desk":
 				String[] deskVars = {results.getString("Legs"), results.getString("Top"), results.getString("Drawer")};
 				return new Item(results.getString("ID"), results.getString("Type"),deskVars ,results.getString("Price"), results.getString("ManuID"));
-
+			//if filings are needed
 			case "filing":
 				String[] filingVars = {results.getString("Rails"), results.getString("Drawers"), results.getString("Cabinet")};
 				return new Item(results.getString("ID"), results.getString("Type"),filingVars ,results.getString("Price"), results.getString("ManuID"));
-
+			//if lamps are needed
 			case "lamp":
 				String[] lampVars = {results.getString("Base"), results.getString("Bulb")};
 				return new Item(results.getString("ID"), results.getString("Type"),lampVars ,results.getString("Price"), results.getString("ManuID"));
-
 			default: 
 				return new Item();
 			}
@@ -185,7 +213,7 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * finds the best combination of items out of the desired list
+	 * method selectBestCombination is used for finding the best combination of items out of the desired list
 	 * @param items a set of items
 	 * @return the combination of items that fulfills the requirements the cheapest
 	 * @throws Exception if there are no valid combos
@@ -194,7 +222,7 @@ public class SupplyChainManager {
 
 		int varsLength = items.get(0).getTypeVariables().length;
 		// parts holds an array of arrays of items that have each part
-		//		example
+		//	example
 		//partA: item1, item2, item4
 		//partB: item2, item3
 		//partC: item5
@@ -204,7 +232,7 @@ public class SupplyChainManager {
 		for(int i = 0; i < varsLength; i++) {
 			parts.add(new ArrayList<Item>());
 			for(Item a : items) {
-				if(a.getTypeVariables()[i].equals("Y")) {// if the variable = 'Y'
+				if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
 					parts.get(i).add(a);
 				}
 			}
