@@ -3,15 +3,22 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class SupplyChainManager {
-
-	public final String DBURL; //store the database url information
-	public final String USERNAME; //store the user's account username
-	public final String PASSWORD; //store the user's account password
+	/**Database url*/
+	public final String DBURL; 
+	/**User username*/
+	public final String USERNAME; 
+	/**User password*/
+	public final String PASSWORD; 
 
 	private Connection dbConnect;
 	private ResultSet results;
 
-	//constructor I guess
+	/**
+	 * Constructor for the SupplyChainManager object
+	 * @param databaseURL database URL
+	 * @param username MySQL user username
+	 * @param password MySQL user password
+	 */
 	public SupplyChainManager(String databaseURL, String username, String password){
 		this.DBURL =  databaseURL; 
 		this.USERNAME = username;
@@ -27,20 +34,22 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * this is chaos
+	 * Takes in the name of the desired item and the table it is located in,
+	 * then it will use the OutFile class to write the best combination of
+	 * items to an output file. returns a Boolean of whether a combination was found.
 	 * @param name name of the item
 	 * @param tableName name of the type of item
 	 * @param quantity how many items
-	 * @return boolean of whether the item was found or not (not used)
+	 * @return boolean of whether the item was found or not
 	 */
 	public boolean run(String name, String tableName, String quantity) {
 		int quant = Integer.valueOf(quantity);
 		try {
-			//selects the best combos and deletes the items out of the database
+			//selects the best combo and deletes the items out of the database
 			//throws NoValidCombinationException if there is no way to make a full item
 			ArrayList<ArrayList<Item>> allCombos = new ArrayList<ArrayList<Item>>();
 			for(int i = 0; i < quant; i++) {
-				ArrayList<Item> a = selectBestCombination(selectItem(name, tableName));//throws NoValidCombinationException
+				ArrayList<Item> a = selectBestCombination(selectItems(name, tableName));//throws NoValidCombinationException
 				allCombos.add(a);
 				for(Item e : a) {
 					deleteID(e.getId(), tableName);
@@ -63,32 +72,29 @@ public class SupplyChainManager {
 			}
 			
 
-		} catch (NoValidCombinationsException e2) {
+		} catch (NoValidCombinationsException e) {
 			try {
 				//prints out a form saying that no Item could be created
 				OutFile f = new OutFile(tableName, quantity, selectManufacturers());
 				f.writeNoneAvailable(name);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
-		} catch (IOException e1) {
-
-		} catch (Exception e3) {
-
+		} catch (IOException e) {
+//			e.printStackTrace();
+		} catch (Exception e) {
+//			e.printStackTrace();
 		}
 		return true;
-
-
-
 	}
 
 	/**
-	 * deletes an Item with ID id out of the database
+	 * Deletes the Item with the ID id out of the table with tableName in the 
+	 * database.
 	 * @param id ID of the item to be deleted
-	 * @param tableName table to delete the item from
+	 * @param tableName Table to delete the item from
 	 */
-	private void deleteID(String id, String tableName) {
+	public void deleteID(String id, String tableName) {
 		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
 		try {
 			Statement newStmt = dbConnect.createStatement();
@@ -97,18 +103,16 @@ public class SupplyChainManager {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 	}
 
-
 	/**
-	 * selects all the desired items from the table
-	 * 
-	 * @param name name of the item
-	 * @param tableName name of the table the item belongs to
-	 * @return returns an array with all of the results of the query
+	 * Returns them as an ArrayList of all the of items from the table, 
+	 * tableName, with the name, name. 
+	 * @param name Name of the item to look for
+	 * @param tableName Name of the table the item belongs to
+	 * @return Returns an ArrayList with all of the results of the query
 	 */
-	public ArrayList<Item> selectItem(String name, String tableName){
+	public ArrayList<Item> selectItems(String name, String tableName){
 		String query = "SELECT * FROM "+ tableName + " WHERE Type = \'" + name + "\'" ;
 		ArrayList<Item> outputArray = new ArrayList<Item>();
 		try {
@@ -116,16 +120,28 @@ public class SupplyChainManager {
 			//put results into an array to output
 			results = newStmt.executeQuery(query);
 			while(results.next()) {
-				outputArray.add(newItem(results, tableName));
+				outputArray.add(newItem(tableName));
 			}
 
 			newStmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		// makes sure there are items found in the table
+		if(outputArray.size() < 1) { 
+			// prints error message "No 'name' tabelName's found" 
+			System.err.println("No " + name + " " + tableName + "s found");
+		}
+		
 		return outputArray;
+		
+		
 	}
 	
+	/**
+	 * Returns an array of all manufacturers names from the manufacturer table
+	 * @return ArrayList of the names of the manufacturers
+	 */
 	public ArrayList<String> selectManufacturers(){
 		String query = "SELECT * FROM manufacturer";
 		ArrayList<String> outputArray = new ArrayList<String>();
@@ -146,37 +162,71 @@ public class SupplyChainManager {
 	
 
 	/**
-	 * creates a new Item based on what the tableName is.
-	 * Using a switch statement to select the name, then creating an array of 
-	 * the items parts data (Y/N) then creating a new item based on the data
-	 * @param result result set from a query
-	 * @param tableName table that the query was performed on
-	 * @return new Item object
+	 * Returns a new Item based on what the tableName the item should belong to
+	 * @param tableName The table used to get the data in results 
+	 * @return A new Item object
 	 */
-	private Item newItem(ResultSet result, String tableName) {
+	public Item newItem(String tableName) {
 		try {
 			switch(tableName) {
 			case "chair":
-				String[] tableVars = {results.getString("Legs"), results.getString("Arms"), results.getString("Seat"), results.getString("Cushion")};
-				return new Item(results.getString("ID"), results.getString("Type"),tableVars ,results.getString("Price"), results.getString("ManuID"));
+				//array of the variable columns for the table name
+				//each String will be either 'Y' or 'N'
+				String[] tableVars = {
+						results.getString("Legs"), 
+						results.getString("Arms"), results.getString("Seat"), 
+						results.getString("Cushion")
+						};
+				//creating the Item object with the data from results
+				return new Item(
+						results.getString("ID"), 
+						results.getString("Type"),tableVars, 
+						results.getString("Price"), 
+						results.getString("ManuID")
+						);
 
 			case "desk":
-				String[] deskVars = {results.getString("Legs"), results.getString("Top"), results.getString("Drawer")};
-				return new Item(results.getString("ID"), results.getString("Type"),deskVars ,results.getString("Price"), results.getString("ManuID"));
+				String[] deskVars = {
+						results.getString("Legs"), 
+						results.getString("Top"), 
+						results.getString("Drawer")
+						};
+				return new Item(
+						results.getString("ID"), 
+						results.getString("Type"),deskVars,
+						results.getString("Price"), 
+						results.getString("ManuID")
+						);
 
 			case "filing":
-				String[] filingVars = {results.getString("Rails"), results.getString("Drawers"), results.getString("Cabinet")};
-				return new Item(results.getString("ID"), results.getString("Type"),filingVars ,results.getString("Price"), results.getString("ManuID"));
+				String[] filingVars = {
+						results.getString("Rails"), 
+						results.getString("Drawers"), 
+						results.getString("Cabinet")
+						};
+				return new Item(
+						results.getString("ID"), 
+						results.getString("Type"),filingVars, 
+						results.getString("Price"), 
+						results.getString("ManuID")
+						);
 
 			case "lamp":
-				String[] lampVars = {results.getString("Base"), results.getString("Bulb")};
-				return new Item(results.getString("ID"), results.getString("Type"),lampVars ,results.getString("Price"), results.getString("ManuID"));
+				String[] lampVars = {
+						results.getString("Base"), 
+						results.getString("Bulb")
+						};
+				return new Item(
+						results.getString("ID"), 
+						results.getString("Type"), lampVars, 
+						results.getString("Price"), 
+						results.getString("ManuID")
+						);
 
 			default: 
 				return new Item();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 
 		}
@@ -185,12 +235,14 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * finds the best combination of items out of the desired list
-	 * @param items a set of items
-	 * @return the combination of items that fulfills the requirements the cheapest
-	 * @throws Exception if there are no valid combos
+	 * Finds the best combination of items out of the given ArrayList
+	 * @param items an ArrayList of Items
+	 * @return The ArrayList of Items that fulfills the requirements for the  
+	 * lowest price
+	 * @throws Exception if there are no valid combinations
 	 */
-	private ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
+	public ArrayList<Item> selectBestCombination(ArrayList<Item> items) 
+			throws Exception{
 
 		int varsLength = items.get(0).getTypeVariables().length;
 		// parts holds an array of arrays of items that have each part
@@ -204,7 +256,7 @@ public class SupplyChainManager {
 		for(int i = 0; i < varsLength; i++) {
 			parts.add(new ArrayList<Item>());
 			for(Item a : items) {
-				if(a.getTypeVariables()[i].equals("Y")) {// if the variable = 'Y'
+				if(a.getTypeVariables()[i].equals("Y")) {//if the variable = 'Y'
 					parts.get(i).add(a);
 				}
 			}
@@ -236,13 +288,18 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * adds the prices up for each combination and adds it to an array 
-	 * @param arr array of combinations
-	 * @return an array of prices
+	 * Adds the prices up for each ArrayList in the given ArrayList and adds it 
+	 * to an ArrayList 
+	 * @param arr ArrayList of ArrayLists of type Item
+	 * @return An ArrayList of prices as integers
 	 */
-	private  ArrayList<Integer> getPriceForCombinations(ArrayList<ArrayList<Item>> arr){
+	public  ArrayList<Integer> getPriceForCombinations(
+			ArrayList<ArrayList<Item>> arr){
 
-		ArrayList<Integer> prices = new ArrayList<Integer>();
+		//arrayList that will be returned
+		ArrayList<Integer> prices = new ArrayList<Integer>(); 
+		
+		//Iterate through arr to calculate price and put it into prices
 		for(int i = 0; i < arr.size(); i++) {
 			int sum = 0;
 			for(int j = 0; j < arr.get(i).size(); j++) {
@@ -255,11 +312,12 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * deletes all duplicate items from combinations
+	 * Deletes all duplicate items from the ArrayLists in ArrayList toChange
 	 * @param toChange array of combinations
-	 * @return returns teh edited combinaitions
+	 * @return returns the edited ArrayList
 	 */
-	private ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
+	public ArrayList<ArrayList<Item>> removeDuplicates(
+			ArrayList<ArrayList<Item>> toChange){
 
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
@@ -280,7 +338,8 @@ public class SupplyChainManager {
 	 * @param parts array of sets
 	 * @return the Cartesian product of all of the sets
 	 */
-	private ArrayList<ArrayList<Item>> createCombinations(ArrayList<ArrayList<Item>> parts) {
+	public ArrayList<ArrayList<Item>> createCombinations(
+			ArrayList<ArrayList<Item>> parts) {
 		if (parts.size() < 2)
 			throw new IllegalArgumentException(
 					"Can't have a product of fewer than two sets (got " +
@@ -290,18 +349,23 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * recursively solves for the Cartesian product of the sets
+	 * Returns the ArrayList of ArrayLists that contain the Cartesian product of 
+	 * the given ArrayLists in the ArrayList combinations.
+	 * 
 	 * @param index index of the first set being multiplied
-	 * @param combos array of sets
-	 * @return the Cartesian product of all of two sets
+	 * @param combinations ArrayList of ArrayLists that contain sets
+	 * @return the Cartesian product of the set at index with the result of 
+	 * createCombinations with index + 1
 	 */
-	private ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combos) {
-		ArrayList<ArrayList<Item>> returnArray = new ArrayList<ArrayList<Item>>();
-		if (index == combos.size()) {
+	public ArrayList<ArrayList<Item>>createCombinations(int index, 
+			ArrayList<ArrayList<Item>> combinations) {
+		ArrayList<ArrayList<Item>> returnArray=new ArrayList<ArrayList<Item>>();
+		if (index == combinations.size()) {
 			returnArray.add(new ArrayList<Item>());
 		} else {
-			for (Item element : combos.get(index)) {
-				for (ArrayList<Item> set : createCombinations(index + 1, combos)) {
+			for (Item element : combinations.get(index)) {
+				for (ArrayList<Item> set : createCombinations(index + 1, 
+						combinations)) {
 					set.add(element);
 					returnArray.add(set);
 				}
@@ -311,21 +375,24 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * given three command line arguments : ItemName, TableName, quantity : 
-	 * it will run the supply chain manager to give the cheapest combination of 
+	 * Takes three command line arguments ; ItemName, TableName, quantity ; 
+	 * It will run the supply chain manager to give the cheapest combination of 
 	 * items to build a full one or give recommendations for manufacturers that 
 	 * sell the items you are looking for if the program can't build a full item
 	 * from the current stock.
-	 * @param args uses three arguments (ItemName, TableName, quantity)
+	 * @param args Main uses the first three arguments (ItemName, TableName, 
+	 * quantity)
 	 */
 	public static void main(String[] args) {
 
-		if(args.length > 3) {
-			System.err.print("Please supply three arguments (ItemName, TableName, quantity)");
+		if(args.length < 3) {
+			System.err.print("Please supply three arguments (ItemName, "
+					+ "TableName, quantity)");
 			return;
 		}
 		
-		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","ensf409","ensf409");
+		SupplyChainManager myJDBC = new SupplyChainManager(
+				"jdbc:mysql://localhost/inventory","ensf409","ensf409");
 		myJDBC.initializeConnection();
 
 		myJDBC.run(args[0], args[1], args[2]);
