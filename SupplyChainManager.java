@@ -39,7 +39,7 @@ public class SupplyChainManager {
 	}
 
 	//method initializeConnection is used for connect to the database driver
-	private void initializeConnection() {
+	public void initializeConnection() {
 		try{
 			dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
 		} catch (SQLException e) {
@@ -112,7 +112,7 @@ public class SupplyChainManager {
 	 * @param id ID of the item to be deleted
 	 * @param tableName table to delete the item from
 	 */
-	private void deleteID(String id, String tableName) {
+	public void deleteID(String id, String tableName) {
 		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
 		try {
 			Statement newStmt = dbConnect.createStatement();
@@ -183,7 +183,7 @@ public class SupplyChainManager {
 	 * @param tableName table that the query was performed on
 	 * @return new Item object
 	 */
-	private Item newItem(ResultSet result, String tableName) {
+	public Item newItem(ResultSet result, String tableName) {
 		try {
 			switch(tableName) {
 			//if chairs are needed
@@ -270,7 +270,7 @@ public class SupplyChainManager {
 	 * @param arr array of combinations
 	 * @return an array of prices
 	 */
-	private  ArrayList<Integer> getPriceForCombinations(ArrayList<ArrayList<Item>> arr){
+	public  ArrayList<Integer> getPriceForCombinations(ArrayList<ArrayList<Item>> arr){
 
 		ArrayList<Integer> prices = new ArrayList<Integer>();
 		for(int i = 0; i < arr.size(); i++) {
@@ -289,7 +289,7 @@ public class SupplyChainManager {
 	 * @param toChange array of combinations
 	 * @return returns teh edited combinaitions
 	 */
-	private ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
+	public ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
 
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
@@ -310,7 +310,7 @@ public class SupplyChainManager {
 	 * @param parts array of sets
 	 * @return the Cartesian product of all of the sets
 	 */
-	private ArrayList<ArrayList<Item>> createCombinations(ArrayList<ArrayList<Item>> parts) {
+	public ArrayList<ArrayList<Item>> createCombinations(ArrayList<ArrayList<Item>> parts) {
 		if (parts.size() < 2)
 			throw new IllegalArgumentException(
 					"Can't have a product of fewer than two sets (got " +
@@ -325,7 +325,7 @@ public class SupplyChainManager {
 	 * @param combos array of sets
 	 * @return the Cartesian product of all of two sets
 	 */
-	private ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combos) {
+	public ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combos) {
 		ArrayList<ArrayList<Item>> returnArray = new ArrayList<ArrayList<Item>>();
 		if (index == combos.size()) {
 			returnArray.add(new ArrayList<Item>());
@@ -355,7 +355,7 @@ public class SupplyChainManager {
 			return;
 		}
 		//change this to your MySQL account stuff
-		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","scm","ensf409");
+		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","root","ellie7715");
 		myJDBC.initializeConnection();
 
 		myJDBC.run(args[0], args[1], args[2]);
