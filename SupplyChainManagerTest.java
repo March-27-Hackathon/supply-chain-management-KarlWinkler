@@ -119,6 +119,25 @@ public class SupplyChainManagerTest {
     assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
+  @Test
+  public void selectItemFakeTypeTest() {
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    manager.initializeConnection();
+    ArrayList<Item> returned = manager.selectItem("Does Not Exist", "lamp");
+    ArrayList<Item> shouldEqual = new ArrayList<Item>(0);
+    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+  }
+
+  @Test
+  public void selectManufacturersTest() {
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    manager.initializeConnection();
+    ArrayList<String> returned = manager.selectManufacturers();
+    ArrayList<String> shouldEqual = new ArrayList<String>(5);
+    shouldEqual.add
+    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+  }
+  
   private boolean compareArrayList(ArrayList<Item> one, ArrayList<Item> two){
     if(one.size()!=two.size()){
         return false;
