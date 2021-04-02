@@ -1,4 +1,5 @@
-
+//This class is used for recording all the information of the items in the inventory.
+//which can help to contribute the different items with different requirements.
 public class Item {
 
 	private String id;
@@ -7,6 +8,7 @@ public class Item {
 	private String price;
 	private String manuID;
 	
+	//constructor of Item with no argument
 	public Item() {
 		this.id = "";
 		this.type = "";
@@ -14,7 +16,7 @@ public class Item {
 		this.price = "";
 		this.manuID = "";
 	}
-
+	//constructor of Item with five arguments
 	public Item(String id, String type,String[] variables ,String price, String manuID) {
 		this.id = id;
 		this.type = type;
@@ -23,6 +25,7 @@ public class Item {
 		this.manuID = manuID;
 	}
 
+	//getters for all private variables
 	public String getId() {
 		return id;
 	}
