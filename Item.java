@@ -24,6 +24,9 @@ public class Item {
 		this.manuID = manuID;
 	}
 
+	public void setId(String id){
+		this.id = id;
+	}
 	//getter of all private variables
 	public String getId() {
 		return id;

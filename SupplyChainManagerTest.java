@@ -10,7 +10,7 @@ import java.util.ArrayList;
 FUNCTIONS TO TEST:
 
 SupplyChainManager - done
-initializeConnection - ?
+initializeConnection - todo
 run - ?
 deleteID - todo
 selectItem - done
@@ -18,8 +18,8 @@ selectManufacturers - done
 newItem - tested in selectItem...
 selectBestCombination - todo
 getPriceForCombination - todo
-removeDuplicates - todo
-createCombinations - todo
+removeDuplicates - in progress
+createCombinations - done
 
 make sure initialize and close is working as expected
 */
@@ -255,33 +255,27 @@ public class SupplyChainManagerTest {
     sizeOne.add(new ArrayList<Item>());
     ArrayList<ArrayList<Item>> combinations = manager.createCombinations(sizeOne);
   }
-
+ 
   @Test
   public void removeDuplicatesTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     //Initialize some data to put into create combos function 
     ArrayList<Item> items = new ArrayList<Item>(4);
-    String [] firstItem = {"N", "Y", "N"};
-    String [] secondItem = {"Y", "N", "Y"};
-    String [] thirdItem = {"N", "N", "Y"};
-    String [] fourthItem = {"N", "Y", "Y"};
-    String [] fifthItem = {"Y", "N", "N"};
-    String [] sixthItem = {"Y", "Y", "N"};
-    items.add(new Item("D1030", "Adjustable", firstItem, "150", "002"));
-    items.add(new Item("D2746", "Adjustable", secondItem, "250", "004"));
-    items.add(new Item("D3682", "Adjustable", thirdItem, "50", "005"));
-    items.add(new Item("D4475", "Adjustable", fourthItem, "200", "002"));
-    items.add(new Item("D5437", "Adjustable", fifthItem, "50", "001"));
-    items.add(new Item("D7373", "Adjustable", sixthItem, "350", "005"));
-
+    String [] firstItem = {"Y", "N"};
+    String [] secondItem = {"N", "Y"};
+    String [] thirdItem = {"Y", "N"};
+    String [] fourthItem = {"N", "Y"};
+    items.add(new Item("L053", "Swing Arm", firstItem, "27", "002"));
+    items.add(new Item("L096", "Swing Arm", secondItem, "3", "002"));
+    items.add(new Item("L487", "Swing Arm", thirdItem, "27", "002"));
+    items.add(new Item("L879", "Swing Arm", fourthItem, "3", "005"));
     int varsLength = items.get(0).getTypeVariables().length;
     // parts holds an array of arrays of items that have each part
     //	example
     //partA: item1, item2, item4
     //partB: item2, item3
     //partC: item5
-    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
-
+    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();  
     //puts items into sub-arrays based on whether they have parts or not
     for(int i = 0; i < varsLength; i++) {
         parts.add(new ArrayList<Item>());
@@ -292,31 +286,34 @@ public class SupplyChainManagerTest {
         }
     }
     ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
-    ArrayList<ArrayList<Item>> removedDuplicates = manager.removeDuplicates(combinations);
+    combinations.get(0).add(new Item("L053", "Swing Arm", firstItem, "27", "002"));
+    combinations.get(3).add(new Item("L879", "Swing Arm", fourthItem, "3", "005"));
+
+    ArrayList<ArrayList<Item>> removedDuplicates = manager.removeDuplicates(combinations);  
     for(int i = 0; i<combinations.size(); i++){
-        for(int j = 0; j<combinations.size(); j++){
+        for(int j = 0; j<combinations.get(i).size(); j++){
             System.out.println("("+i+", "+j+") "+combinations.get(i).get(j).getId());
         }
     }
     for(int i = 0; i<removedDuplicates.size(); i++){
-        for(int j = 0; j<removedDuplicates.size(); j++){
+        for(int j = 0; j<removedDuplicates.get(i).size(); j++){
             System.out.println("("+i+", "+j+") "+removedDuplicates.get(i).get(j).getId());
         }
     }
+    System.out.println(combinations.get(0).get(1)==combinations.get(0).get(2));
     //Build the expected return arraylist.
     ArrayList<ArrayList<String>> shouldEqual = new ArrayList<ArrayList<String>>();
     for(int i = 0; i<4; i++){
         shouldEqual.add(new ArrayList<String>());
     }
-    /*shouldEqual.get(0).add("L096");
+    shouldEqual.get(0).add("L096");
     shouldEqual.get(0).add("L053");
     shouldEqual.get(1).add("L879");
     shouldEqual.get(1).add("L053");
     shouldEqual.get(2).add("L096");
     shouldEqual.get(2).add("L487");
     shouldEqual.get(3).add("L879");
-    shouldEqual.get(3).add("L487");*/
-
+    shouldEqual.get(3).add("L487");  
     //Check that removedDuplicates is the same as expected values.
     boolean isSame = true;
     if(removedDuplicates.size()==shouldEqual.size()){
@@ -326,7 +323,6 @@ public class SupplyChainManagerTest {
                     if(!shouldEqual.get(i).get(j).equals(removedDuplicates.get(i).get(j).getId())){
                         isSame = false;
                     }
-
                 }
             }
             else{
@@ -396,7 +392,6 @@ public class SupplyChainManagerTest {
                     if(!shouldEqual.get(i).get(j).equals(removedDuplicates.get(i).get(j).getId())){
                         isSame = false;
                     }
-
                 }
             }
             else{

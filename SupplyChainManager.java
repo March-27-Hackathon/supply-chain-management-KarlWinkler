@@ -301,7 +301,7 @@ public class SupplyChainManager {
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
 				for(int k = j + 1; k < toChange.get(i).size(); k++) {
-					if(toChange.get(i).get(k) == toChange.get(i).get(j)) {
+					if(compareItems(toChange.get(i).get(k), toChange.get(i).get(j))) {
 						toChange.get(i).remove(k);
 					}
 				}
@@ -347,6 +347,30 @@ public class SupplyChainManager {
 		return returnArray;
 	}
 
+	private boolean compareItems(Item one, Item two){
+		if(!one.getId().equals(two.getId())){
+			return false;
+		}
+		if(!one.getType().equals(two.getType())){
+			return false;
+		}
+		if(!one.getManuID().equals(two.getManuID())){
+			return false;
+		}
+		if(!one.getPrice().equals(two.getPrice())){
+			return false;
+		}
+		if(!(one.getTypeVariables().length == two.getTypeVariables().length)){
+			return false;
+		}
+		for(int i = 0; i<one.getTypeVariables().length; i++){
+			if(!one.getTypeVariables()[i].equalsIgnoreCase(two.getTypeVariables()[i])){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * given three command line arguments : ItemName, TableName, quantity : 
 	 * it will run the supply chain manager to give the cheapest combination of 
@@ -368,6 +392,7 @@ public class SupplyChainManager {
 		myJDBC.run(args[0], args[1], args[2]);
 
 	}	
+	
 }
 
 class NoValidCombinationsException extends Exception{
