@@ -94,7 +94,7 @@ public class SupplyChainManager {
 	 * @param id ID of the item to be deleted
 	 * @param tableName Table to delete the item from
 	 */
-	public void deleteID(String id, String tableName) {
+	private void deleteID(String id, String tableName) {
 		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
 		try {
 			Statement newStmt = dbConnect.createStatement();
@@ -166,7 +166,7 @@ public class SupplyChainManager {
 	 * @param tableName The table used to get the data in results 
 	 * @return A new Item object
 	 */
-	public Item newItem(String tableName) {
+	private Item newItem(String tableName) {
 		try {
 			switch(tableName) {
 			case "chair":
@@ -241,7 +241,7 @@ public class SupplyChainManager {
 	 * lowest price
 	 * @throws Exception if there are no valid combinations
 	 */
-	public ArrayList<Item> selectBestCombination(ArrayList<Item> items) 
+	private ArrayList<Item> selectBestCombination(ArrayList<Item> items) 
 			throws Exception{
 
 		int varsLength = items.get(0).getTypeVariables().length;
@@ -293,7 +293,7 @@ public class SupplyChainManager {
 	 * @param arr ArrayList of ArrayLists of type Item
 	 * @return An ArrayList of prices as integers
 	 */
-	public  ArrayList<Integer> getPriceForCombinations(
+	private ArrayList<Integer> getPriceForCombinations(
 			ArrayList<ArrayList<Item>> arr){
 
 		//arrayList that will be returned
@@ -316,7 +316,7 @@ public class SupplyChainManager {
 	 * @param toChange array of combinations
 	 * @return returns the edited ArrayList
 	 */
-	public ArrayList<ArrayList<Item>> removeDuplicates(
+	private ArrayList<ArrayList<Item>> removeDuplicates(
 			ArrayList<ArrayList<Item>> toChange){
 
 		for(int i = 0; i < toChange.size(); i++) {
@@ -338,7 +338,7 @@ public class SupplyChainManager {
 	 * @param parts array of sets
 	 * @return the Cartesian product of all of the sets
 	 */
-	public ArrayList<ArrayList<Item>> createCombinations(
+	private ArrayList<ArrayList<Item>> createCombinations(
 			ArrayList<ArrayList<Item>> parts) {
 		if (parts.size() < 2)
 			throw new IllegalArgumentException(
@@ -357,7 +357,7 @@ public class SupplyChainManager {
 	 * @return the Cartesian product of the set at index with the result of 
 	 * createCombinations with index + 1
 	 */
-	public ArrayList<ArrayList<Item>>createCombinations(int index, 
+	private ArrayList<ArrayList<Item>>createCombinations(int index, 
 			ArrayList<ArrayList<Item>> combinations) {
 		ArrayList<ArrayList<Item>> returnArray=new ArrayList<ArrayList<Item>>();
 		if (index == combinations.size()) {
