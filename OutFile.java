@@ -1,6 +1,9 @@
+//This class is used for writing the result from SupplyChainManagement class on 
+//a new text file in the specified format
 import java.io.*;
 import java.util.ArrayList;
 public class OutFile {
+	//all the information need to be written in the file
 	private String Request;
 	private String Quantity;
 	private ArrayList<String> IDs;
@@ -8,6 +11,8 @@ public class OutFile {
 	private String TotalPrice;
 	private static String filename ="OutputFile";
 	
+	//constructor with four arguments, creates a new object with the specified request, quantity,
+	//ID, and price
 	public OutFile (String req, String qua, ArrayList<String> ids, int prc){
 		this.Request=req;
 		this.Quantity=qua;
@@ -15,12 +20,15 @@ public class OutFile {
 		this.TotalPrice=Integer.toString(prc);
 	}
 	
+	//constructor with three arguments, creates a new object with the specified request, quantity, and companies
 	public OutFile (String req, String qua, ArrayList<String> companies){
 		this.Request=req;
 		this.Quantity=qua;
 		this.companies=companies;
 	}
 
+	//method writeOutFile, which is used for write all information in the file
+	//if there are the results fulfilled.
 	public void writeOutFile () throws IOException{
 		FileWriter filewrite = new FileWriter (filename, false);
 		filewrite.write("Furniture Order Form"+"\n");
@@ -36,6 +44,8 @@ public class OutFile {
 		filewrite.close();
 	}
 	
+	//method writeNoneAvailable with one argument (requried furniture's name), which 
+	//is used for writing in the file if there is no fulfilled result in the database
 	public void writeNoneAvailable(String name) throws IOException {
 		FileWriter filewrite = new FileWriter (filename, false);
 		filewrite.write("Furniture Order Form"+"\n");
@@ -45,6 +55,7 @@ public class OutFile {
 		filewrite.write("\n"+"Original Request:"+ name + " " + Request +", " + Quantity +"\n");
 		filewrite.write("\n"+"Order cannot be fulfilled based on current inventory. Suggested manufacturers are ");
 		
+		//If there is no fulfilled result, the system will suggest some other available manufacturers
 		String ManNotIncluded1="";
 		String ManNotIncluded2="";
 		if(Request.equals("chair")||Request.equals("Chair")){
