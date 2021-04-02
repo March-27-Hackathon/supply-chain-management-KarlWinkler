@@ -13,13 +13,15 @@ SupplyChainManager - done
 initializeConnection - ?
 run - ?
 deleteID - todo
-selectItem - in progress
-selectManufacturers - todo
+selectItem - done
+selectManufacturers - done
 newItem - tested in selectItem...
 selectBestCombination - todo
 getPriceForCombination - todo
 removeDuplicates - todo
 createCombinations - todo
+
+make sure initialize and close is working as expected
 */
 
 public class SupplyChainManagerTest {
@@ -27,7 +29,10 @@ public class SupplyChainManagerTest {
   public static String PASSWORD = "ensf409";
   public static String DBURL = "jdbc:mysql://localhost/INVENTORY";
   public static String CONSTRUCTOR_MESSAGE = "The constructor of SupplyChainManager failed to initialize constants.";
-  public static String SELECTITEM_MESSAGE = "The function selectItem() of SupplyChainManager failed to return the correct ArrayList.";
+  public static String SELECTITEM_MESSAGE = "The function selectItem of SupplyChainManager failed to return the correct ArrayList<Item>.";
+  public static String SELECTMANU_MESSAGE = "The function selectManufacturers of SupplyChainManager failed to return the correct ArrayList<String>.";
+  public static String CREATECOMBO_MESSAGE = "The function createCombinations of SupplyChainManager failed to return the correct Arraylist<Arraylist<Item>>";
+  public static String REMOVEDUP_MESSAGE = "The function removeDuplicates of SupplyChainManager failed to remove duplicates.";
   private SupplyChainManager manager;
   @BeforeClass
   public static void initializeConnection(){
@@ -49,6 +54,7 @@ public class SupplyChainManagerTest {
     }
     assertTrue(CONSTRUCTOR_MESSAGE, didSetConstants);
   }
+  
   @Test
   public void selectItemDeskTest() {
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -134,10 +140,276 @@ public class SupplyChainManagerTest {
     manager.initializeConnection();
     ArrayList<String> returned = manager.selectManufacturers();
     ArrayList<String> shouldEqual = new ArrayList<String>(5);
-    shouldEqual.add
-    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+    shouldEqual.add("Academic Desks");
+    shouldEqual.add("Office Furnishings");
+    shouldEqual.add("Chairs R Us");
+    shouldEqual.add("Furniture Goods");
+    shouldEqual.add("Fine Office Supplies");
+
+    assertTrue(SELECTMANU_MESSAGE, shouldEqual.equals(returned));
   }
   
+  @Test
+  public void createCombinationsTest() throws Exception{
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    ArrayList<ArrayList<Item>> shouldEqual = new ArrayList<ArrayList<Item>>();
+    for(int i = 0; i<4; i++){
+        shouldEqual.add(new ArrayList<Item>(2));
+        shouldEqual.get(i).add(new Item());
+        shouldEqual.get(i).add(new Item());
+    }
+    shouldEqual.get(0).get(0).setId("L096");
+    shouldEqual.get(0).get(1).setId("L053");
+    shouldEqual.get(1).get(0).setId("L879");
+    shouldEqual.get(1).get(1).setId("L053");
+    shouldEqual.get(2).get(0).setId("L096");
+    shouldEqual.get(2).get(1).setId("L487");
+    shouldEqual.get(3).get(0).setId("L879");
+    shouldEqual.get(3).get(1).setId("L487");
+
+    ArrayList<Item> items = new ArrayList<Item>(4);
+    String [] firstItem = {"Y", "N"};
+    String [] secondItem = {"N", "Y"};
+    String [] thirdItem = {"Y", "N"};
+    String [] fourthItem = {"N", "Y"};
+    items.add(new Item("L053", "Swing Arm", firstItem, "27", "002"));
+    items.add(new Item("L096", "Swing Arm", secondItem, "3", "002"));
+    items.add(new Item("L487", "Swing Arm", thirdItem, "27", "002"));
+    items.add(new Item("L879", "Swing Arm", fourthItem, "3", "005"));
+    int varsLength = items.get(0).getTypeVariables().length;
+    // parts holds an array of arrays of items that have each part
+    //	example
+    //partA: item1, item2, item4
+    //partB: item2, item3
+    //partC: item5
+    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
+
+    //puts items into sub-arrays based on whether they have parts or not
+    for(int i = 0; i < varsLength; i++) {
+        parts.add(new ArrayList<Item>());
+        for(Item a : items) {
+            if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
+                parts.get(i).add(a);
+            }
+        }
+    }
+    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
+
+    //Check if the combinations array is equal to the hardcoded array.
+    boolean isSame = true;
+    if(combinations.size()==shouldEqual.size()){
+        for(int i = 0; i<combinations.size(); i++){
+            if(combinations.get(i).size()==shouldEqual.get(i).size()){
+                for(int j = 0; j<combinations.get(i).size(); j++){
+                    if(!shouldEqual.get(i).get(j).getId().equals(combinations.get(i).get(j).getId())){
+                        isSame = false;
+                    }
+                }
+            }
+            else{
+                isSame = false;
+            }
+        }
+    }
+    else{
+        isSame = false;
+    }
+    //Assert that they are the same array.
+    assertTrue(CREATECOMBO_MESSAGE, isSame);
+
+  }
+  
+  @Test
+  public void createCombinationsShouldBeEmptyTest() throws Exception{
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    ArrayList<Item> items = new ArrayList<Item>();
+    String [] firstItem = {"Y", "N"};
+    String [] secondItem = {"Y", "N"};
+    items.add(new Item("L053", "Swing Arm", firstItem, "27", "002"));
+    items.add(new Item("L487", "Swing Arm", secondItem, "27", "002"));
+    int varsLength = items.get(0).getTypeVariables().length;
+    // parts holds an array of arrays of items that have each part
+    //	example
+    //partA: item1, item2, item4
+    //partB: item2, item3
+    //partC: item5
+    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
+    //puts items into sub-arrays based on whether they have parts or not
+    for(int i = 0; i < varsLength; i++) {
+        parts.add(new ArrayList<Item>());
+        for(Item a : items) {
+            if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
+                parts.get(i).add(a);
+            }
+        }
+    }
+    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
+    boolean isEmpty = combinations.size()==0;
+    assertTrue(CREATECOMBO_MESSAGE, isEmpty);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void createCombinationsExceptionTest(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    ArrayList<ArrayList<Item>> sizeOne = new ArrayList<ArrayList<Item>>();
+    sizeOne.add(new ArrayList<Item>());
+    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(sizeOne);
+  }
+
+  @Test
+  public void removeDuplicatesTest(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    //Initialize some data to put into create combos function 
+    ArrayList<Item> items = new ArrayList<Item>(4);
+    String [] firstItem = {"N", "Y", "N"};
+    String [] secondItem = {"Y", "N", "Y"};
+    String [] thirdItem = {"N", "N", "Y"};
+    String [] fourthItem = {"N", "Y", "Y"};
+    String [] fifthItem = {"Y", "N", "N"};
+    String [] sixthItem = {"Y", "Y", "N"};
+    items.add(new Item("D1030", "Adjustable", firstItem, "150", "002"));
+    items.add(new Item("D2746", "Adjustable", secondItem, "250", "004"));
+    items.add(new Item("D3682", "Adjustable", thirdItem, "50", "005"));
+    items.add(new Item("D4475", "Adjustable", fourthItem, "200", "002"));
+    items.add(new Item("D5437", "Adjustable", fifthItem, "50", "001"));
+    items.add(new Item("D7373", "Adjustable", sixthItem, "350", "005"));
+
+    int varsLength = items.get(0).getTypeVariables().length;
+    // parts holds an array of arrays of items that have each part
+    //	example
+    //partA: item1, item2, item4
+    //partB: item2, item3
+    //partC: item5
+    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
+
+    //puts items into sub-arrays based on whether they have parts or not
+    for(int i = 0; i < varsLength; i++) {
+        parts.add(new ArrayList<Item>());
+        for(Item a : items) {
+            if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
+                parts.get(i).add(a);
+            }
+        }
+    }
+    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
+    ArrayList<ArrayList<Item>> removedDuplicates = manager.removeDuplicates(combinations);
+    for(int i = 0; i<combinations.size(); i++){
+        for(int j = 0; j<combinations.size(); j++){
+            System.out.println("("+i+", "+j+") "+combinations.get(i).get(j).getId());
+        }
+    }
+    for(int i = 0; i<removedDuplicates.size(); i++){
+        for(int j = 0; j<removedDuplicates.size(); j++){
+            System.out.println("("+i+", "+j+") "+removedDuplicates.get(i).get(j).getId());
+        }
+    }
+    //Build the expected return arraylist.
+    ArrayList<ArrayList<String>> shouldEqual = new ArrayList<ArrayList<String>>();
+    for(int i = 0; i<4; i++){
+        shouldEqual.add(new ArrayList<String>());
+    }
+    /*shouldEqual.get(0).add("L096");
+    shouldEqual.get(0).add("L053");
+    shouldEqual.get(1).add("L879");
+    shouldEqual.get(1).add("L053");
+    shouldEqual.get(2).add("L096");
+    shouldEqual.get(2).add("L487");
+    shouldEqual.get(3).add("L879");
+    shouldEqual.get(3).add("L487");*/
+
+    //Check that removedDuplicates is the same as expected values.
+    boolean isSame = true;
+    if(removedDuplicates.size()==shouldEqual.size()){
+        for(int i = 0; i<removedDuplicates.size(); i++){
+            if(removedDuplicates.get(i).size()==shouldEqual.get(i).size()){
+                for(int j = 0; j<removedDuplicates.get(i).size(); j++){
+                    if(!shouldEqual.get(i).get(j).equals(removedDuplicates.get(i).get(j).getId())){
+                        isSame = false;
+                    }
+
+                }
+            }
+            else{
+                isSame = false;
+            }
+        }
+    }
+    else{
+        isSame = false;
+    }
+    assertTrue(REMOVEDUP_MESSAGE, isSame);
+  }
+
+  @Test
+  public void removeDuplicatesNoDuplicatesTest(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    //Initialize some data to put into create combos function 
+    ArrayList<Item> items = new ArrayList<Item>(4);
+    String [] firstItem = {"Y", "N"};
+    String [] secondItem = {"N", "Y"};
+    String [] thirdItem = {"Y", "N"};
+    String [] fourthItem = {"N", "Y"};
+    items.add(new Item("L053", "Swing Arm", firstItem, "27", "002"));
+    items.add(new Item("L096", "Swing Arm", secondItem, "3", "002"));
+    items.add(new Item("L487", "Swing Arm", thirdItem, "27", "002"));
+    items.add(new Item("L879", "Swing Arm", fourthItem, "3", "005"));
+    int varsLength = items.get(0).getTypeVariables().length;
+    // parts holds an array of arrays of items that have each part
+    //	example
+    //partA: item1, item2, item4
+    //partB: item2, item3
+    //partC: item5
+    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();
+
+    //puts items into sub-arrays based on whether they have parts or not
+    for(int i = 0; i < varsLength; i++) {
+        parts.add(new ArrayList<Item>());
+        for(Item a : items) {
+            if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
+                parts.get(i).add(a);
+            }
+        }
+    }
+    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
+    ArrayList<ArrayList<Item>> removedDuplicates = manager.removeDuplicates(combinations);
+
+    //Build the expected return arraylist.
+    ArrayList<ArrayList<String>> shouldEqual = new ArrayList<ArrayList<String>>();
+    for(int i = 0; i<4; i++){
+        shouldEqual.add(new ArrayList<String>());
+    }
+    shouldEqual.get(0).add("L096");
+    shouldEqual.get(0).add("L053");
+    shouldEqual.get(1).add("L879");
+    shouldEqual.get(1).add("L053");
+    shouldEqual.get(2).add("L096");
+    shouldEqual.get(2).add("L487");
+    shouldEqual.get(3).add("L879");
+    shouldEqual.get(3).add("L487");
+
+    //Check that removedDuplicates is the same as expected values.
+    boolean isSame = true;
+    if(removedDuplicates.size()==shouldEqual.size()){
+        for(int i = 0; i<removedDuplicates.size(); i++){
+            if(removedDuplicates.get(i).size()==shouldEqual.get(i).size()){
+                for(int j = 0; j<removedDuplicates.get(i).size(); j++){
+                    if(!shouldEqual.get(i).get(j).equals(removedDuplicates.get(i).get(j).getId())){
+                        isSame = false;
+                    }
+
+                }
+            }
+            else{
+                isSame = false;
+            }
+        }
+    }
+    else{
+        isSame = false;
+    }
+    assertTrue(REMOVEDUP_MESSAGE, isSame);
+  }
+
   private boolean compareArrayList(ArrayList<Item> one, ArrayList<Item> two){
     if(one.size()!=two.size()){
         return false;

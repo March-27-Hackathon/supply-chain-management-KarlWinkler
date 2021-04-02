@@ -220,7 +220,7 @@ public class SupplyChainManager {
 	 * @return the combination of items that fulfills the requirements the cheapest
 	 * @throws Exception if there are no valid combos
 	 */
-	private ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
+	public ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
 
 		int varsLength = items.get(0).getTypeVariables().length;
 		// parts holds an array of arrays of items that have each part
@@ -248,6 +248,13 @@ public class SupplyChainManager {
 		}
 
 		ArrayList<ArrayList<Item>> combinations = createCombinations(parts);
+
+		for(int i = 0; i<combinations.size(); i++){
+			for(int j = 0; j<combinations.get(i).size(); j++){
+				Item temp = combinations.get(i).get(j);
+				System.out.println(i + " " + j + " " +temp.getId()+" "+temp.getManuID()+" "+temp.getPrice()+" "+temp.getType());
+			}
+		}
 
 		combinations = removeDuplicates(combinations);
 
@@ -355,7 +362,7 @@ public class SupplyChainManager {
 			return;
 		}
 		//change this to your MySQL account stuff
-		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","root","ellie7715");
+		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","max","ensf409");
 		myJDBC.initializeConnection();
 
 		myJDBC.run(args[0], args[1], args[2]);
