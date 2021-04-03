@@ -9,17 +9,23 @@ import java.util.ArrayList;
 /*
 FUNCTIONS TO TEST:
 
-SupplyChainManager - done
-initializeConnection - todo
+TO DO:
+selectBestCombinatiosTest
+initializeConnectionTest
+closeConnectionTest
+
+COMPLETED:
+selectItem
+selectManufacturers
+SupplyChainManager
+getPriceForCombination
+removeDuplicates
+createCombinations
+
+Unsure?
 run - ?
-deleteID - todo
-selectItem - done
-selectManufacturers - done
+deleteID - ?
 newItem - tested in selectItem...
-selectBestCombination - todo
-getPriceForCombination - todo
-removeDuplicates - in progress
-createCombinations - done
 
 make sure initialize and close is working as expected
 */
@@ -35,16 +41,7 @@ public class SupplyChainManagerTest {
   public static String REMOVEDUP_MESSAGE = "The function removeDuplicates of SupplyChainManager failed to remove duplicates.";
   public static String GETPRICE_MESSAGE = "The function getPriceForCombinations of SUpplyCHainManager failed to get the correct price for the combinations calculated.";
   private SupplyChainManager manager;
-  @BeforeClass
-  public static void initializeConnection(){
-    
-    /*try{
-        dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
-    } catch (SQLException e) {
-        //if failed, throw an SQLException
-        e.printStackTrace();
-    }*/
-  }
+
   @Test
   public void constructorTest() {
     SupplyChainManager constructed = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -488,6 +485,7 @@ public class SupplyChainManagerTest {
     assertTrue(GETPRICE_MESSAGE, isEmpty);
   }
  
+
   private boolean compareArrayList(ArrayList<Item> one, 
   
   ArrayList<Item> two){
