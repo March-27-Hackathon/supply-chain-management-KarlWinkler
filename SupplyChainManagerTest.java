@@ -39,7 +39,8 @@ public class SupplyChainManagerTest {
   public static String SELECTMANU_MESSAGE = "The function selectManufacturers of SupplyChainManager failed to return the correct ArrayList<String>.";
   public static String CREATECOMBO_MESSAGE = "The function createCombinations of SupplyChainManager failed to return the correct Arraylist<Arraylist<Item>>";
   public static String REMOVEDUP_MESSAGE = "The function removeDuplicates of SupplyChainManager failed to remove duplicates.";
-  public static String GETPRICE_MESSAGE = "The function getPriceForCombinations of SUpplyCHainManager failed to get the correct price for the combinations calculated.";
+  public static String GETPRICE_MESSAGE = "The function getPriceForCombinations of SupplyChainManager failed to get the correct price for the combinations calculated.";
+  public static String BESTCOMBO_MESSAGE = "The function selectBestCombination of SupplyChainManager failed to retrieve the correct best combination.";
   private SupplyChainManager manager;
 
   @Test
@@ -485,10 +486,48 @@ public class SupplyChainManagerTest {
     assertTrue(GETPRICE_MESSAGE, isEmpty);
   }
  
+  @Test
+  public void selectBestCombinationsTest() throws Exception{
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    //Initialize some data to put into create combos function 
+    ArrayList<Item> items = new ArrayList<Item>();
+    String [] firstItem = {"N", "N", "Y"};
+    String [] secondItem = {"Y", "N", "Y"};
+    String [] thirdItem = {"N", "Y", "Y"};
+    String [] fourthItem = {"N", "Y", "N"};
+    String [] fifthItem = {"Y", "N", "N"};
+    items.add(new Item("F003", "Large", firstItem, "150", "002"));
+    items.add(new Item("F010", "Large", secondItem, "225", "002"));
+    items.add(new Item("F011", "Large", thirdItem, "225", "005"));
+    items.add(new Item("F012", "Large", fourthItem, "75", "005"));
+    items.add(new Item("F015", "Large", fifthItem, "75", "004"));
 
-  private boolean compareArrayList(ArrayList<Item> one, 
-  
-  ArrayList<Item> two){
+    ArrayList<Item> bestCombo = manager.selectBestCombination(items);
+
+    ArrayList<String> shouldEqual = new ArrayList<String>();
+    shouldEqual.add("F010");
+    shouldEqual.add("F012");
+
+    boolean isSame = true;
+    if(bestCombo.size()!=shouldEqual.size()){
+        isSame = false;
+    }
+    else{
+        for(int i = 0; i<bestCombo.size(); i++){
+            if(!bestCombo.get(i).getId().equals(shouldEqual.get(i))){
+                isSame = false;
+            }
+        }
+    }
+    assertTrue(BESTCOMBO_MESSAGE, isSame);
+  }
+  @Test
+  public void initializeConnectionTest(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    manager.initializeConnection();
+    
+  }
+  private boolean compareArrayList(ArrayList<Item> one, ArrayList<Item> two){
     if(one.size()!=two.size()){
         return false;
     }
@@ -511,6 +550,8 @@ public class SupplyChainManagerTest {
     }
     return true;
   }
-
+  public void selectBestCombinationsEmptyTest() throws Exception{
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    
   //public void runTest("name", 
 }

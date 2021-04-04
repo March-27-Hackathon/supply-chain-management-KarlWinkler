@@ -249,13 +249,6 @@ public class SupplyChainManager {
 
 		ArrayList<ArrayList<Item>> combinations = createCombinations(parts);
 
-		for(int i = 0; i<combinations.size(); i++){
-			for(int j = 0; j<combinations.get(i).size(); j++){
-				Item temp = combinations.get(i).get(j);
-				System.out.println(i + " " + j + " " +temp.getId()+" "+temp.getManuID()+" "+temp.getPrice()+" "+temp.getType());
-			}
-		}
-
 		combinations = removeDuplicates(combinations);
 
 		ArrayList<Integer> priceArray = getPriceForCombinations(combinations);
