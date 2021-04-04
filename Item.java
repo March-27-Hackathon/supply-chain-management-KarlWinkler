@@ -1,7 +1,9 @@
 //This class is used for recording all the information of the items in the inventory.
 //which can help to contribute the different items with different requirements.
-public class Item {
+//This class is used for recording all the information of items in the inventory.
 
+public class Item {
+	//all the information of items in the database
 	private String id;
 	private String type;
 	private String[] typeVariables;
@@ -9,6 +11,7 @@ public class Item {
 	private String manuID;
 	
 	//constructor of Item with no argument
+	//constructor without arguments, just create and empty object
 	public Item() {
 		this.id = "";
 		this.type = "";
@@ -16,7 +19,9 @@ public class Item {
 		this.price = "";
 		this.manuID = "";
 	}
+
 	//constructor of Item with five arguments
+	//constructor with five specified arguments, create a specified item
 	public Item(String id, String type,String[] variables ,String price, String manuID) {
 		this.id = id;
 		this.type = type;
@@ -26,6 +31,10 @@ public class Item {
 	}
 
 	//getters for all private variables
+	public void setId(String id){
+		this.id = id;
+	}
+	//getter of all private variables
 	public String getId() {
 		return id;
 	}
@@ -33,7 +42,7 @@ public class Item {
 	public String getType() {
 		return type;
 	}
-
+	
 	public String[] getTypeVariables() {
 		return typeVariables;
 	}
