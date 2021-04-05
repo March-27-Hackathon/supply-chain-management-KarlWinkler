@@ -62,9 +62,6 @@ public class SupplyChainManager {
 	 * Takes in the name of the desired item and the table it is located in,
 	 * then it will use the OutFile class to write the best combination of
 	 * items to an output file. returns a Boolean of whether a combination was found.
-	 * this is chaos
-	 * method run is used for finding the corresponding items in the database. There are
-	   three arguments, which are name, tableName, and quantity.
 	 * @param name name of the item
 	 * @param tableName name of the type of item
 	 * @param quantity how many items
@@ -123,7 +120,6 @@ public class SupplyChainManager {
 	/**
 	 * Deletes the Item with the ID id out of the table with tableName in the 
 	 * database.
-
 	 * method deleteID is used for deleting an Item with a specified ID id out of the database
 	   There are two arguments, id and tableName
 	 * @param id ID of the item to be deleted
@@ -143,13 +139,12 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * Returns them as an ArrayList of all the of items from the table, 
-	 * tableName, with the name, name. 
+	 * Takes a table name and an item name and returns an ArrayList of all the of items
+	 * from the table.
 	 * @param name Name of the item to look for
 	 * @param tableName Name of the table the item belongs to
 	 * @return Returns an ArrayList with all of the results of the query
-	 * method selectItem, which is used for selecting all the desired items from the table
-	   There are two parameters, name and tableName
+	 */
 	 * @param name name of the item
 	 * @param tableName name of the table the item belongs to
 	 * @return returns an array with all of the results of the query
@@ -181,7 +176,7 @@ public class SupplyChainManager {
 	}
 	
 	/**
-	 * Returns an array of all manufacturers names from the manufacturer table
+	 * Returns an array of all manufacturers names from the manufacturer table.
 	 * @return ArrayList of the names of the manufacturers
 	 * method selectManufacturers, which is used for selecting the items with the 
 	   specified manufactures from the table. There is no argument.
@@ -415,7 +410,6 @@ public class SupplyChainManager {
 	/**
 	 * Returns the ArrayList of ArrayLists that contain the Cartesian product of 
 	 * the given ArrayLists in the ArrayList combinations.
-	 * 
 	 * @param index index of the first set being multiplied
 	 * @param combinations ArrayList of ArrayLists that contain sets
 	 * @return the Cartesian product of the set at index with the result of 
@@ -459,6 +453,18 @@ public class SupplyChainManager {
 		}
 		return true;
 	}
+		 
+	/**
+	 * releases the database resources
+	 */
+	public void close() {
+		 try {
+		    results.close();
+	            dbConnect.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	}
 
 	/**
 	 * Takes three command line arguments ; ItemName, TableName, quantity ; 
@@ -485,18 +491,6 @@ public class SupplyChainManager {
 
 		myJDBC.run(args[0], args[1], args[2]);
 
-	}
-		 
-	/**
-	 * releases the database resources
-	 */
-	public void close() {
-		 try {
-		    results.close();
-	            dbConnect.close();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
-	        }
 	}
 	
 }
