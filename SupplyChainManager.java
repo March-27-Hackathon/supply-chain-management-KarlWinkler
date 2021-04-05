@@ -302,8 +302,6 @@ public class SupplyChainManager {
 	 * lowest price
 	 * @throws Exception if there are no valid combinations
 	 */
-	private ArrayList<Item> selectBestCombination(ArrayList<Item> items) 
-			throws Exception{
 	 * method selectBestCombination is used for finding the best combination of items out of the desired list
 	 * @param items a set of items
 	 * @return the combination of items that fulfills the requirements the cheapest
@@ -361,8 +359,6 @@ public class SupplyChainManager {
 	 * @param arr ArrayList of ArrayLists of type Item
 	 * @return An ArrayList of prices as integers
 	 */
-	private ArrayList<Integer> getPriceForCombinations(
-			ArrayList<ArrayList<Item>> arr){
 	public  ArrayList<Integer> getPriceForCombinations(ArrayList<ArrayList<Item>> arr){
 
 		//arrayList that will be returned
@@ -385,8 +381,6 @@ public class SupplyChainManager {
 	 * @param toChange array of combinations
 	 * @return returns the edited ArrayList
 	 */
-	private ArrayList<ArrayList<Item>> removeDuplicates(
-			ArrayList<ArrayList<Item>> toChange){
 	public ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
 
 		for(int i = 0; i < toChange.size(); i++) {
@@ -408,8 +402,6 @@ public class SupplyChainManager {
 	 * @param parts array of sets
 	 * @return the Cartesian product of all of the sets
 	 */
-	private ArrayList<ArrayList<Item>> createCombinations(
-			ArrayList<ArrayList<Item>> parts) {
 	public ArrayList<ArrayList<Item>> createCombinations(ArrayList<ArrayList<Item>> parts) {
 		if (parts.size() < 2)
 			throw new IllegalArgumentException(
@@ -428,10 +420,6 @@ public class SupplyChainManager {
 	 * @return the Cartesian product of the set at index with the result of 
 	 * createCombinations with index + 1
 	 */
-	private ArrayList<ArrayList<Item>>createCombinations(int index, 
-			ArrayList<ArrayList<Item>> combinations) {
-		ArrayList<ArrayList<Item>> returnArray=new ArrayList<ArrayList<Item>>();
-		if (index == combinations.size()) {
 	public ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combos) {
 		ArrayList<ArrayList<Item>> returnArray = new ArrayList<ArrayList<Item>>();
 		if (index == combos.size()) {
@@ -447,7 +435,6 @@ public class SupplyChainManager {
 		}
 		return returnArray;
 	}
-
 	private boolean compareItems(Item one, Item two){
 		if(!one.getId().equals(two.getId())){
 			return false;
