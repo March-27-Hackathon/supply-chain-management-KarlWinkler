@@ -150,7 +150,7 @@ public class SupplyChainManager {
 	 * @param tableName name of the table the item belongs to
 	 * @return returns an array with all of the results of the query
 	 */
-	public ArrayList<Item> selectItems(String name, String tableName){
+	public ArrayList<Item> selectItems(String name, String tableName) throws Exception{
 		String query = "SELECT * FROM "+ tableName + " WHERE Type = \'" + name + "\'" ;
 		ArrayList<Item> outputArray = new ArrayList<Item>();
 		try {
@@ -169,6 +169,7 @@ public class SupplyChainManager {
 		if(outputArray.size() < 1) { 
 			// prints error message "No 'name' tabelName's found" 
 			System.err.println("No " + name + " " + tableName + "s found");
+			throw new Exception();
 		}
 		
 		return outputArray;
