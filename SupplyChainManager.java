@@ -116,6 +116,7 @@ public class SupplyChainManager {
 		} catch (Exception e) {
 //			e.printStackTrace();
 		}
+		close();
 		return true;
 	}
 
@@ -484,7 +485,19 @@ public class SupplyChainManager {
 
 		myJDBC.run(args[0], args[1], args[2]);
 
-	}	
+	}
+		 
+	/**
+	 * releases the database resources
+	 */
+	public void close() {
+		 try {
+		    results.close();
+	            dbConnect.close();
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	}
 	
 }
 
