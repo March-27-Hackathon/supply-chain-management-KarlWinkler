@@ -98,9 +98,6 @@ public class SupplyChainManager {
 			}
 		
 		} catch (NoValidCombinationsException e) {
-
-		} catch (NoValidCombinationsException e2) {
-
 			try {
 				//prints out a form saying that no Item could be created
 				OutFile f = new OutFile(tableName, quantity, selectManufacturers());
@@ -108,10 +105,15 @@ public class SupplyChainManager {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			return false;
 		} catch (IOException e) {
-//			e.printStackTrace();
+			results.close();
+			close();
+			return false;
 		} catch (Exception e) {
-//			e.printStackTrace();
+			results.close();
+			close();
+			return false;
 		}
 		results.close();
 		close();
