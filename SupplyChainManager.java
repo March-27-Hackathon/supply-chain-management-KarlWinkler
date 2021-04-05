@@ -22,6 +22,7 @@ furniture or specify if the request is not possible to fill.
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SupplyChainManager {
 	/**Database url*/
@@ -33,6 +34,8 @@ public class SupplyChainManager {
 
 	private Connection dbConnect;
 	private ResultSet results;
+	
+	int quantity = 0;
 
 	/**
 	 * Constructor for the SupplyChainManager object
@@ -46,6 +49,8 @@ public class SupplyChainManager {
 		this.DBURL =  databaseURL; 
 		this.USERNAME = username;
 		this.PASSWORD = password;
+		
+		initializeConnection();
 	}
 
 	//method initializeConnection is used for connect to the database driver
@@ -69,25 +74,25 @@ public class SupplyChainManager {
 	 */
 	
 	public boolean run(String name, String tableName, String quantity) {
-		int quant = Integer.valueOf(quantity);
+		this.quantity = Integer.valueOf(quantity);
 		try {
 			//selects the best combo and deletes the items out of the database
 			//throws NoValidCombinationException if there is no way to make a full item
 			ArrayList<ArrayList<Item>> allCombos = new ArrayList<ArrayList<Item>>();
-			for(int i = 0; i < quant; i++) {
-				ArrayList<Item> a = selectBestCombination(selectItems(name, tableName));//throws NoValidCombinationException
-				allCombos.add(a);
-				for(Item e : a) {
-					deleteID(e.getId(), tableName);
-				}
-			}
+			
+			ArrayList<Item> a = selectBestCombination(selectItems(name, tableName));//throws NoValidCombinationException
+			allCombos.add(a);
+			//				for(Item e : a) {
+			//					deleteID(e.getId(), tableName); //TODO uncomment
+			//				}
+			
 
 				
 			//prints out a form for all of the items required to make the desired amount of items
 			ArrayList<String> ids = new ArrayList<String>();
 			int sum = 0;
-			for(ArrayList<Item> a : allCombos) {
-				for(Item e : a) {
+			for(ArrayList<Item> ac : allCombos) {
+				for(Item e : ac) {
 					sum += Integer.valueOf(e.getPrice());
 					ids.add(e.getId());
 					System.out.println(e.getId());
@@ -107,15 +112,12 @@ public class SupplyChainManager {
 			}
 			return false;
 		} catch (IOException e) {
-			results.close();
-			close();
+			e.printStackTrace();
 			return false;
 		} catch (Exception e) {
-			results.close();
-			close();
+			e.printStackTrace();
 			return false;
 		}
-		results.close();
 		close();
 		return true;
 	}
@@ -147,10 +149,6 @@ public class SupplyChainManager {
 	 * @param name Name of the item to look for
 	 * @param tableName Name of the table the item belongs to
 	 * @return Returns an ArrayList with all of the results of the query
-	 */
-	 * @param name name of the item
-	 * @param tableName name of the table the item belongs to
-	 * @return returns an array with all of the results of the query
 	 */
 	public ArrayList<Item> selectItems(String name, String tableName) throws Exception{
 		String query = "SELECT * FROM "+ tableName + " WHERE Type = \'" + name + "\'" ;
@@ -212,7 +210,7 @@ public class SupplyChainManager {
 	 * @param tableName table that the query was performed on
 	 * @return new Item object
 	 */
-	public Item newItem(ResultSet result, String tableName) {
+	public Item newItem(String tableName) {
 		try {
 			switch(tableName) {
 			//if chairs are needed
@@ -269,21 +267,6 @@ public class SupplyChainManager {
 						results.getString("Price"), 
 						results.getString("ManuID")
 						);
-
-				String[] tableVars = {results.getString("Legs"), results.getString("Arms"), results.getString("Seat"), results.getString("Cushion")};
-				return new Item(results.getString("ID"), results.getString("Type"),tableVars ,results.getString("Price"), results.getString("ManuID"));
-			//if desks are needed
-			case "desk":
-				String[] deskVars = {results.getString("Legs"), results.getString("Top"), results.getString("Drawer")};
-				return new Item(results.getString("ID"), results.getString("Type"),deskVars ,results.getString("Price"), results.getString("ManuID"));
-			//if filings are needed
-			case "filing":
-				String[] filingVars = {results.getString("Rails"), results.getString("Drawers"), results.getString("Cabinet")};
-				return new Item(results.getString("ID"), results.getString("Type"),filingVars ,results.getString("Price"), results.getString("ManuID"));
-			//if lamps are needed
-			case "lamp":
-				String[] lampVars = {results.getString("Base"), results.getString("Bulb")};
-				return new Item(results.getString("ID"), results.getString("Type"),lampVars ,results.getString("Price"), results.getString("ManuID"));
 			default: 
 				return new Item();
 			}
@@ -302,11 +285,6 @@ public class SupplyChainManager {
 	 * lowest price
 	 * @throws Exception if there are no valid combinations
 	 */
-	 * method selectBestCombination is used for finding the best combination of items out of the desired list
-	 * @param items a set of items
-	 * @return the combination of items that fulfills the requirements the cheapest
-	 * @throws Exception if there are no valid combos
-	 */
 	public ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
 
 		int varsLength = items.get(0).getTypeVariables().length;
@@ -321,7 +299,6 @@ public class SupplyChainManager {
 		for(int i = 0; i < varsLength; i++) {
 			parts.add(new ArrayList<Item>());
 			for(Item a : items) {
-				if(a.getTypeVariables()[i].equals("Y")) {//if the variable = 'Y'
 				if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
 					parts.get(i).add(a);
 				}
@@ -329,7 +306,7 @@ public class SupplyChainManager {
 		}
 		//check if it is possible to create a full item
 		for(ArrayList<Item> i : parts) {
-			if(i.size() < 1) {
+			if(i.size() < quantity) {
 				//if not, throw ...
 				throw new NoValidCombinationsException("No valid combinations");
 			}
@@ -338,7 +315,11 @@ public class SupplyChainManager {
 		ArrayList<ArrayList<Item>> combinations = createCombinations(parts);
 
 		combinations = removeDuplicates(combinations);
-
+		combinations = findUnique(combinations);
+		combinations = powerSet(quantity, combinations);
+		
+		combinations = removeInvalid(combinations);
+		
 		ArrayList<Integer> priceArray = getPriceForCombinations(combinations);
 
 		int min = priceArray.get(0); //finding the minimum combination
@@ -351,6 +332,19 @@ public class SupplyChainManager {
 		}
 
 		return combinations.get(index);
+	}
+	
+	public ArrayList<ArrayList<Item>> combinationsByPrice(ArrayList<Item> arr){
+		
+		ArrayList<ArrayList<Item>> combinations = new ArrayList<ArrayList<Item>>();
+		
+		for(int i = 0; i < quantity; i++) {
+			combinations.add(arr);
+		}
+		combinations = createCombinations(combinations);
+		
+		
+		return createCombinations(combinations);
 	}
 
 	/**
@@ -382,21 +376,77 @@ public class SupplyChainManager {
 	 * @return returns the edited ArrayList
 	 */
 	public ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
-
+		boolean removed = false;
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
 				for(int k = j + 1; k < toChange.get(i).size(); k++) {
 					if(compareItems(toChange.get(i).get(k), toChange.get(i).get(j))) {
 						toChange.get(i).remove(k);
+						i--;
+						removed = true;
+						break;
 					}
+				}
+				if(removed) {
+					removed = false;
+					break;
 				}
 			}
 		}
 
 		return toChange;
-
 	}
-
+	
+	public ArrayList<ArrayList<Item>> findUnique(ArrayList<ArrayList<Item>> array){
+		ArrayList<ArrayList<Item>> unique = new ArrayList<ArrayList<Item>>();
+		boolean matched = false;
+		unique.add(array.get(0));
+		for(int i = 1; i < array.size(); i++) {
+			for(int j = 0; j < unique.size(); j++) {
+				if(matches(array.get(i), (unique.get(j)))) {
+					matched = true;
+				}
+			}
+			if(!matched) {
+				unique.add(array.get(i));
+			}
+			else {
+				matched = false;
+			}
+		}
+		
+		return unique;
+	}
+	
+	public boolean matches(ArrayList<Item> arrOne, ArrayList<Item> arrTwo) {
+		if(sort(arrOne).equals(sort(arrTwo))) {
+			return true;
+		}
+		return false;
+	}
+	
+	public ArrayList<ArrayList<Item>> removeInvalid(ArrayList<ArrayList<Item>> toChange){
+		boolean removed = false;
+		for(int i = 0; i < toChange.size(); i++) {
+			for(int j = 0; j < toChange.get(i).size(); j++) {
+				for(int k = j + 1; k < toChange.get(i).size(); k++) {
+					if(compareItems(toChange.get(i).get(k), toChange.get(i).get(j))) {
+						toChange.remove(i);
+						i--;
+						removed = true;
+						break;
+					}
+				}
+				if(removed) {
+					removed = false;
+					break;
+				}
+			}
+		}
+		
+		return toChange;
+	}
+	
 	/**
 	 * entrance to recursive Cartesian product creator 
 	 * @param parts array of sets
@@ -419,9 +469,9 @@ public class SupplyChainManager {
 	 * @return the Cartesian product of the set at index with the result of 
 	 * createCombinations with index + 1
 	 */
-	public ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combos) {
+	public ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combinations) {
 		ArrayList<ArrayList<Item>> returnArray = new ArrayList<ArrayList<Item>>();
-		if (index == combos.size()) {
+		if (index == combinations.size()) {
 			returnArray.add(new ArrayList<Item>());
 		} else {
 			for (Item element : combinations.get(index)) {
@@ -434,6 +484,38 @@ public class SupplyChainManager {
 		}
 		return returnArray;
 	}
+	
+	public ArrayList<ArrayList<Item>>powerSet(int power, ArrayList<ArrayList<Item>> combinations){
+		
+		return powerSet(power, combinations, combinations);
+	}
+	
+	public ArrayList<ArrayList<Item>>powerSet(int power, ArrayList<ArrayList<Item>> combinations, ArrayList<ArrayList<Item>> powerSet){
+		
+		ArrayList<ArrayList<Item>> sets = new ArrayList<ArrayList<Item>>();
+	    if (combinations.isEmpty()) {
+	        sets.add(new ArrayList<Item>());
+	        return sets;
+	    }
+	    if(power <= 1) {
+//	    	if(powerSet.isEmpty()) {
+//	    		return combinations;
+//	    	}
+	    	return powerSet;
+	    }
+	    ArrayList<ArrayList<Item>> list = new ArrayList<ArrayList<Item>>(powerSet);
+	    for (int i = 0; i < list.size(); i++) {
+	    	for(int j = 0; j < combinations.size(); j++) {
+	    		ArrayList<Item> set = new ArrayList<Item>(list.get(i));
+	    		for(int k = 0; k < combinations.get(j).size(); k++) {
+	    			set.add(combinations.get(j).get(k));
+	    		}
+	    		sets.add(set);
+	    	}
+	    } 
+	    return powerSet(power - 1, combinations, sets);
+	}
+	
 	private boolean compareItems(Item one, Item two){
 		if(!one.getId().equals(two.getId())){
 			return false;
@@ -456,6 +538,22 @@ public class SupplyChainManager {
 			}
 		}
 		return true;
+	}
+	
+	public ArrayList<Item> sort(ArrayList<Item> toSort){
+		int j;
+		for (int i = 1; i < toSort.size(); i++) {
+			if (Integer.valueOf(toSort.get(i).getId().substring(1)) < Integer.valueOf(toSort.get(i-1).getId().substring(1))) {
+				j = i;
+				Item  toInsert = toSort.get(i) ;
+				while (Integer.valueOf(toSort.get(j).getId().substring(1)) > Integer.valueOf(toInsert.getId().substring(1)) && j >= 1) {
+					toSort.set(j+1,toSort.get(j)) ; //move list elements to the right to make room for toInsert
+					j-- ;
+				} //end while
+				toSort.set(j,toInsert) ; //insert toInsert at correct place in sorted part of list
+			} //end if
+		} //end for
+		return toSort;
 	}
 		 
 	/**
@@ -485,18 +583,17 @@ public class SupplyChainManager {
 					+ "TableName, quantity)");
 			return;
 		}
-		
+
+		//change this to your MySQL account stuff
 		SupplyChainManager myJDBC = new SupplyChainManager(
 				"jdbc:mysql://localhost/inventory","ensf409","ensf409");
-		//change this to your MySQL account stuff
-		SupplyChainManager myJDBC = new SupplyChainManager("jdbc:mysql://localhost/inventory","max","ensf409");
-		myJDBC.initializeConnection();
 
 		myJDBC.run(args[0], args[1], args[2]);
 
 	}
-	
 }
+	
+
 
 class NoValidCombinationsException extends Exception{
 
