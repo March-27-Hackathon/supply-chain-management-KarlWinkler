@@ -113,6 +113,7 @@ public class SupplyChainManager {
 		} catch (Exception e) {
 //			e.printStackTrace();
 		}
+		results.close();
 		close();
 		return true;
 	}
@@ -459,7 +460,6 @@ public class SupplyChainManager {
 	 */
 	public void close() {
 		 try {
-		    results.close();
 	            dbConnect.close();
 	        } catch (SQLException e) {
 	            e.printStackTrace();
