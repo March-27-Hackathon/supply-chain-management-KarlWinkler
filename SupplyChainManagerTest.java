@@ -41,6 +41,7 @@ public class SupplyChainManagerTest {
   public static String REMOVEDUP_MESSAGE = "The function removeDuplicates of SupplyChainManager failed to remove duplicates.";
   public static String GETPRICE_MESSAGE = "The function getPriceForCombinations of SupplyChainManager failed to get the correct price for the combinations calculated.";
   public static String BESTCOMBO_MESSAGE = "The function selectBestCombination of SupplyChainManager failed to retrieve the correct best combination.";
+  public static String POWERSET_MESSAGE = "The function powSet of SupplyChainManager failed to be combined in power times.";
   public static String INITIALIZE_MESSAGE = "The function initializeConnection of SupplyChainManager failed to initialize the connection.";
   public static String CLOSE_MESSAGE = "The function close of SupplyChainManager failed to initialize the connection.";
   public static String RUN_MESSAGE = "The function run of SupplyChainManager failed to produce the expected output file.";
@@ -745,6 +746,126 @@ public class SupplyChainManagerTest {
     }
     return true;
   }
+  
+  
+  @Test
+  public void powerSetTest() {
+	  manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+	    //Initialize some data to put into create combos function 
+	    ArrayList<Item> items = new ArrayList<Item>(3);
+	    String [] firstItem = {"N", "N", "Y"};
+	    String [] secondItem = {"Y", "N", "Y"};
+	    String [] thirdItem = {"N", "Y", "Y"};
+	    items.add(new Item("F003", "Large", firstItem, "150", "002"));
+	    items.add(new Item("F010", "Large", secondItem, "225", "002"));
+	    items.add(new Item("F011", "Large", thirdItem, "225", "005"));
+	    int varsLength = items.get(0).getTypeVariables().length;
+	    System.out.println(varsLength);
+	    // parts holds an array of arrays of items that have each part
+	    //	example
+	    //partA: item1, item2, item4
+	    //partB: item2, item3
+	    //partC: item5
+	    ArrayList<ArrayList<Item>> parts = new ArrayList<ArrayList<Item>>();  
+	    //puts items into sub-arrays based on whether they have parts or not
+	    for(int i = 0; i < varsLength; i++) {
+	        parts.add(new ArrayList<Item>());
+	        for(Item a : items) {
+	            if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
+	                parts.get(i).add(a);
+	            }
+	        }
+	    }
+
+	    //Create combinations from parts
+	    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
+	    combinations = manager.removeDuplicates(combinations);
+	    for(int i=0;i<combinations.size();i++) {
+	    	for(int j=0;j<combinations.get(i).size();j++) {
+	    		System.out.print(combinations.get(i).get(j).getId()+" ");
+	    	}
+	    	System.out.println();
+	    }
+	    System.out.println();
+	    
+	    combinations=manager.powerSet(2, combinations);
+	    for(int i=0;i<combinations.size();i++) {
+	    	for(int j=0;j<combinations.get(i).size();j++) {
+	    		System.out.print(combinations.get(i).get(j).getId()+" ");
+	    	}
+	    	System.out.println();
+	    }
+	    
+	    ArrayList<ArrayList<String>> shouldEqual=new ArrayList<ArrayList<String>>();
+	    for(int i=0;i<9;i++) {
+	        shouldEqual.add(new ArrayList<String>());
+	    }
+	    
+	    shouldEqual.get(0).add("F003");
+	    shouldEqual.get(0).add("F011");
+	    shouldEqual.get(0).add("F010");
+	    shouldEqual.get(0).add("F003");
+	    shouldEqual.get(0).add("F011");
+	    shouldEqual.get(0).add("F010");
+	    shouldEqual.get(1).add("F003");
+	    shouldEqual.get(1).add("F011");
+	    shouldEqual.get(1).add("F010");
+	    shouldEqual.get(1).add("F010");
+	    shouldEqual.get(1).add("F011");
+	    shouldEqual.get(2).add("F003");
+	    shouldEqual.get(2).add("F011");
+	    shouldEqual.get(2).add("F010");
+	    shouldEqual.get(2).add("F011");
+	    shouldEqual.get(2).add("F010");
+	    shouldEqual.get(3).add("F010");
+	    shouldEqual.get(3).add("F011");
+	    shouldEqual.get(3).add("F003");
+	    shouldEqual.get(3).add("F011");
+	    shouldEqual.get(3).add("F010");
+	    shouldEqual.get(4).add("F010");
+	    shouldEqual.get(4).add("F011");
+	    shouldEqual.get(4).add("F010");
+	    shouldEqual.get(4).add("F011");
+	    shouldEqual.get(5).add("F010");
+	    shouldEqual.get(5).add("F011");
+	    shouldEqual.get(5).add("F011");
+	    shouldEqual.get(5).add("F010");
+	    shouldEqual.get(6).add("F011");
+	    shouldEqual.get(6).add("F010");
+	    shouldEqual.get(6).add("F003");
+	    shouldEqual.get(6).add("F011");
+	    shouldEqual.get(6).add("F010");
+	    shouldEqual.get(7).add("F011");
+	    shouldEqual.get(7).add("F010");
+	    shouldEqual.get(7).add("F010");
+	    shouldEqual.get(7).add("F011");
+	    shouldEqual.get(8).add("F011");
+	    shouldEqual.get(8).add("F010");
+	    shouldEqual.get(8).add("F011");
+	    shouldEqual.get(8).add("F010");
+	    
+	    boolean isSame = true;
+	    if(combinations.size()==shouldEqual.size()){
+	        for(int i = 0; i<combinations.size(); i++){
+	            if(combinations.get(i).size()==shouldEqual.get(i).size()){
+	                for(int j = 0; j<combinations.get(i).size(); j++){
+	                    if(!shouldEqual.get(i).get(j).equals(combinations.get(i).get(j).getId())){
+	                        isSame = false;
+	                    }
+	                }
+	            }
+	            else{
+	                isSame = false;
+	            }
+	        }
+	    }
+	    else{
+	        isSame = false;
+	    }
+	    assertTrue(REMOVEDUP_MESSAGE, isSame);
+	    
+  }
+  
 
   @Test
   public void initializeConnectionTest() throws Exception{
