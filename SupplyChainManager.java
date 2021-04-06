@@ -585,13 +585,13 @@ public class SupplyChainManager {
 		int j;
 		for (int i = 1; i < toSort.size(); i++) {
 			if (Integer.valueOf(toSort.get(i).getId().substring(1)) < Integer.valueOf(toSort.get(i-1).getId().substring(1))) {
-				j = i;
+				j = i-1;
 				Item  toInsert = toSort.get(i) ;
 				while (Integer.valueOf(toSort.get(j).getId().substring(1)) > Integer.valueOf(toInsert.getId().substring(1)) && j >= 1) {
 					toSort.set(j+1,toSort.get(j)) ; //move list elements to the right to make room for toInsert
 					j-- ;
 				} //end while
-				toSort.set(j,toInsert) ; //insert toInsert at correct place in sorted part of list
+				toSort.set(j+1,toInsert) ; //insert toInsert at correct place in sorted part of list
 			} //end if
 		} //end for
 		return toSort;
