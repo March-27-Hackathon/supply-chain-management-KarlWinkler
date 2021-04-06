@@ -35,7 +35,7 @@ public class OutFile {
 		filewrite.write("\n"+"Faculty Name:"+"\n");
 		filewrite.write("Contact:"+"\n");
 		filewrite.write("Date:"+"\n");
-		filewrite.write("\n"+"Original Request:"+ Request +", " +Quantity +"\n");
+		filewrite.write("\n"+"Original Request: "+ Request +", " +Quantity +"\n");
 		filewrite.write("\n"+"Items Ordered"+"\n");
 		for(String id : IDs){
 			filewrite.write("ID: "+ id + "\n");
@@ -52,7 +52,7 @@ public class OutFile {
 		filewrite.write("\n"+"Faculty Name:"+"\n");
 		filewrite.write("Contact:"+"\n");
 		filewrite.write("Date:"+"\n");
-		filewrite.write("\n"+"Original Request:"+ name + " " + Request +", " + Quantity +"\n");
+		filewrite.write("\n"+"Original Request: "+ name + " " + Request +", " + Quantity +"\n");
 		filewrite.write("\n"+"Order cannot be fulfilled based on current inventory. Suggested manufacturers are ");
 		
 		//If there is no fulfilled result, the system will suggest some other available manufacturers
