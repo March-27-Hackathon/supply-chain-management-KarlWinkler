@@ -61,66 +61,7 @@ public class SupplyChainManager {
 			e.printStackTrace();
 		}
 	}
-	/**
-	 * Getter method for DBConnect
-	 * @return dbConnect (Connection object)
-	 */
-	public Connection getDBConnect(){
-		return this.dbConnect;
-	}
-	
-	/**
-	 * Method used by test class to reset SQL after deleting specific items
-	 * @param list of items to be added back into SQL database
-	 * No return.
-	 */
-	public void resetSQL(ArrayList<Item> toRestore){
-		String typeVars = "";
-		String object = "";
-		String y = "\', \'";
-		switch(toRestore.get(0).getId().charAt(0)) {
-			//if the items are chairs
-			case 'C':
-				typeVars += "Legs, Arms, Seat, Cushion";
-				object = "Chair";
-				break;
-			//if the items are desks
-			case 'D':
-				typeVars += "Legs, Top, Drawer";
-				object = "Desk";
-				break;
-			//if the items are filings
-			case 'F':
-				typeVars += "Rails, Drawers, Cabinet";
-				object = "Filing";
-				break;
-			//if the items are lamps
-			case 'L':
-				typeVars += "Base, Bulb";
-				object = "Lamp";
-				break;
-			default: 
-				break;
-		}
-		String insert = ("INSERT INTO "+object+" (ID, Type, "+typeVars+", Price, ManuID)\n");
-		for(int i = 0; i<toRestore.size(); i++){
-			typeVars = "";
-			for(int j = 0; j<toRestore.get(i).getTypeVariables().length; j++){
-				typeVars+=toRestore.get(i).getTypeVariables()[j]+y;
-			}
-			String values = "VALUES (\'"+toRestore.get(i).getId()+y+toRestore.get(i).getType()+y+typeVars+toRestore.get(i).getPrice()+y+toRestore.get(i).getManuID()+"\');";
-			try {
-				Statement newStmt = dbConnect.createStatement();
-				String finalStatement = insert+values;
-				int rows = newStmt.executeUpdate(finalStatement);
-				//release the data
-				newStmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
+
 	/**
 	 * Takes in the name of the desired item and the table it is located in,
 	 * then it will use the OutFile class to write the best combination of
@@ -130,6 +71,7 @@ public class SupplyChainManager {
 	 * @param quantity how many items
 	 * @return boolean of whether the item was found or not
 	 */
+	
 	public boolean run(String name, String tableName, String quantity) {
 		this.quantity = Integer.valueOf(quantity);
 		try {
@@ -139,9 +81,9 @@ public class SupplyChainManager {
 			
 			ArrayList<Item> a = selectBestCombination(selectItems(name, tableName));//throws NoValidCombinationException
 			allCombos.add(a);
-			//				for(Item e : a) {
-			//					deleteID(e.getId(), tableName); //TODO uncomment
-			//				}
+			for(Item e : a) {
+				deleteID(e.getId(), tableName); //TODO uncomment
+			}
 			
 
 				
@@ -158,8 +100,7 @@ public class SupplyChainManager {
 
 				f.writeOutFile();
 			}
-		
-		} catch (NoValidCombinationsException e) {
+		} catch (Exception e) {
 			try {
 				//prints out a form saying that no Item could be created
 				OutFile f = new OutFile(tableName, quantity, selectManufacturers());
@@ -167,12 +108,6 @@ public class SupplyChainManager {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		} catch (Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 		close();
