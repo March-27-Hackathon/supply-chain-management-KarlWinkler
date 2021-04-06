@@ -780,22 +780,7 @@ public class SupplyChainManagerTest {
 	    //Create combinations from parts
 	    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(parts);
 	    combinations = manager.removeDuplicates(combinations);
-	    for(int i=0;i<combinations.size();i++) {
-	    	for(int j=0;j<combinations.get(i).size();j++) {
-	    		System.out.print(combinations.get(i).get(j).getId()+" ");
-	    	}
-	    	System.out.println();
-	    }
-	    System.out.println();
-	    
 	    combinations=manager.powerSet(2, combinations);
-	    for(int i=0;i<combinations.size();i++) {
-	    	for(int j=0;j<combinations.get(i).size();j++) {
-	    		System.out.print(combinations.get(i).get(j).getId()+" ");
-	    	}
-	    	System.out.println();
-	    }
-	    
 	    ArrayList<ArrayList<String>> shouldEqual=new ArrayList<ArrayList<String>>();
 	    for(int i=0;i<9;i++) {
 	        shouldEqual.add(new ArrayList<String>());
