@@ -42,6 +42,7 @@ public class SupplyChainManagerTest {
   public static String GETPRICE_MESSAGE = "The function getPriceForCombinations of SupplyChainManager failed to get the correct price for the combinations calculated.";
   public static String BESTCOMBO_MESSAGE = "The function selectBestCombination of SupplyChainManager failed to retrieve the correct best combination.";
   public static String POWERSET_MESSAGE = "The function powSet of SupplyChainManager failed to be combined in power times.";
+  public static String NICESORT_MESSAGE = "The function sort of SupplyChainManager failed to be sorted.";
   public static String INITIALIZE_MESSAGE = "The function initializeConnection of SupplyChainManager failed to initialize the connection.";
   public static String CLOSE_MESSAGE = "The function close of SupplyChainManager failed to initialize the connection.";
   public static String RUN_MESSAGE = "The function run of SupplyChainManager failed to produce the expected output file.";
@@ -851,6 +852,46 @@ public class SupplyChainManagerTest {
 	    
   }
   
+	
+	
+  @Test
+  public void sortTest() {
+	    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+	    ArrayList<Item> items = new ArrayList<Item>();
+	    String [] firstItem = {"Y", "N"};
+	    String [] secondItem = {"N", "Y"};
+	    String [] thirdItem = {"Y", "N"};
+	    String [] fourthItem = {"Y", "Y"};
+	    String [] fifthItem = {"N", "Y"};
+	    items.add(new Item("L132", "Desk", firstItem, "18", "005"));
+	    items.add(new Item("L980", "Study", secondItem, "2", "004"));
+	    items.add(new Item("L487", "Swing Arm", thirdItem, "27", "002"));
+	    items.add(new Item("L564", "Desk", fourthItem, "20", "004"));
+	    items.add(new Item("L342", "Desk", fifthItem, "2", "002"));
+	    
+	    
+	    ArrayList<Item> sorter = manager.sort(items);
+	    ArrayList<String> shouldEqual = new ArrayList<String>();
+	    shouldEqual.add("L132");
+	    shouldEqual.add("L342");
+	    shouldEqual.add("L487");
+	    shouldEqual.add("L564");
+	    shouldEqual.add("L980");
+	    
+	    boolean isSame = true;
+	    if(sorter.size()!=shouldEqual.size()){
+	        isSame = false;
+	    }
+	    else{
+	        for(int i = 0; i<sorter.size(); i++){
+	            if(!sorter.get(i).getId().equals(shouldEqual.get(i))){
+	                isSame = false;
+	            }
+	        }
+	    }
+	    assertTrue(NICESORT_MESSAGE, isSame);
+  }
+	
 
   @Test
   public void initializeConnectionTest() throws Exception{
