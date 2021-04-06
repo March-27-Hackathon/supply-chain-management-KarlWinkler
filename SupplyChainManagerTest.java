@@ -2,6 +2,9 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import java.util.Arrays;
 import jdk.jfr.Timestamp;
+import java.io.File;  // Import the File class
+import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.util.Scanner; // Import the Scanner class to read text files
 
 //import java.sql.*;
 import java.util.ArrayList;
@@ -9,23 +12,20 @@ import java.util.ArrayList;
 /*
 FUNCTIONS TO TEST:
 
-TO DO:
+COMPLETED:
 selectBestCombinatiosTest
 initializeConnectionTest
 closeConnectionTest
-
-COMPLETED:
-selectItem
+selectItems
 selectManufacturers
 SupplyChainManager
 getPriceForCombination
 removeDuplicates
 createCombinations
+run
 
-Unsure?
-run - ?
-deleteID - ?
-newItem - tested in selectItem...
+
+deleteID - ? tested thoroughly in run...
 
 make sure initialize and close is working as expected
 */
@@ -35,14 +35,17 @@ public class SupplyChainManagerTest {
   public static String PASSWORD = "ensf409";
   public static String DBURL = "jdbc:mysql://localhost/INVENTORY";
   public static String CONSTRUCTOR_MESSAGE = "The constructor of SupplyChainManager failed to initialize constants.";
-  public static String SELECTITEM_MESSAGE = "The function selectItem of SupplyChainManager failed to return the correct ArrayList<Item>.";
+  public static String selectItems_MESSAGE = "The function selectItems of SupplyChainManager failed to return the correct ArrayList<Item>.";
   public static String SELECTMANU_MESSAGE = "The function selectManufacturers of SupplyChainManager failed to return the correct ArrayList<String>.";
   public static String CREATECOMBO_MESSAGE = "The function createCombinations of SupplyChainManager failed to return the correct Arraylist<Arraylist<Item>>";
   public static String REMOVEDUP_MESSAGE = "The function removeDuplicates of SupplyChainManager failed to remove duplicates.";
   public static String GETPRICE_MESSAGE = "The function getPriceForCombinations of SupplyChainManager failed to get the correct price for the combinations calculated.";
   public static String BESTCOMBO_MESSAGE = "The function selectBestCombination of SupplyChainManager failed to retrieve the correct best combination.";
+  public static String INITIALIZE_MESSAGE = "The function initializeConnection of SupplyChainManager failed to initialize the connection.";
+  public static String CLOSE_MESSAGE = "The function close of SupplyChainManager failed to initialize the connection.";
+  public static String RUN_MESSAGE = "The function run of SupplyChainManager failed to produce the expected output file.";
   private SupplyChainManager manager;
-
+  private OutFile outfile;
   @Test
   public void constructorTest() {
     SupplyChainManager constructed = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -55,10 +58,10 @@ public class SupplyChainManagerTest {
   }
   
   @Test
-  public void selectItemDeskTest() {
+  public void selectItemsDeskTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
-    ArrayList<Item> returned = manager.selectItem("Traditional", "desk");
+    ArrayList<Item> returned = manager.selectItems("Traditional", "desk");
     ArrayList<Item> shouldEqual = new ArrayList<Item>(4);
     String [] firstItem = {"N", "N", "Y"};
     String [] secondItem = {"N", "Y", "Y"};
@@ -68,14 +71,15 @@ public class SupplyChainManagerTest {
     shouldEqual.add(new Item("D4231", "Traditional", secondItem, "50", "005"));
     shouldEqual.add(new Item("D8675", "Traditional", thirdItem, "75", "001"));
     shouldEqual.add(new Item("D9352", "Traditional", fourthItem, "75", "002"));
-    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+    manager.close();
+    assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
   @Test
-  public void selectItemChairTest() {
+  public void selectItemsChairTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
-    ArrayList<Item> returned = manager.selectItem("Mesh", "chair");
+    ArrayList<Item> returned = manager.selectItems("Mesh", "chair");
     ArrayList<Item> shouldEqual = new ArrayList<Item>(4);
     String [] firstItem = {"Y", "N", "Y", "Y"};
     String [] secondItem = {"Y", "N", "N", "N"};
@@ -85,14 +89,15 @@ public class SupplyChainManagerTest {
     shouldEqual.add(new Item("C6748", "Mesh", secondItem, "75", "003"));
     shouldEqual.add(new Item("C8138", "Mesh", thirdItem, "75", "005"));
     shouldEqual.add(new Item("C9890", "Mesh", fourthItem, "50", "003"));
-    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+    manager.close();
+    assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
   @Test
-  public void selectItemFilingTest() {
+  public void selectItemsFilingTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
-    ArrayList<Item> returned = manager.selectItem("Large", "filing");
+    ArrayList<Item> returned = manager.selectItems("Large", "filing");
     ArrayList<Item> shouldEqual = new ArrayList<Item>(5);
     String [] firstItem = {"N", "N", "Y"};
     String [] secondItem = {"Y", "N", "Y"};
@@ -104,14 +109,15 @@ public class SupplyChainManagerTest {
     shouldEqual.add(new Item("F011", "Large", thirdItem, "225", "005"));
     shouldEqual.add(new Item("F012", "Large", fourthItem, "75", "005"));
     shouldEqual.add(new Item("F015", "Large", fifthItem, "75", "004"));
-    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+    manager.close();
+    assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
   @Test
-  public void selectItemLampTest() {
+  public void selectItemsLampTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
-    ArrayList<Item> returned = manager.selectItem("Swing Arm", "lamp");
+    ArrayList<Item> returned = manager.selectItems("Swing Arm", "lamp");
     ArrayList<Item> shouldEqual = new ArrayList<Item>(4);
     String [] firstItem = {"Y", "N"};
     String [] secondItem = {"N", "Y"};
@@ -121,20 +127,21 @@ public class SupplyChainManagerTest {
     shouldEqual.add(new Item("L096", "Swing Arm", secondItem, "3", "002"));
     shouldEqual.add(new Item("L487", "Swing Arm", thirdItem, "27", "002"));
     shouldEqual.add(new Item("L879", "Swing Arm", fourthItem, "3", "005"));
-    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+    manager.close();
+    assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
-  @Test
-  public void selectItemFakeTypeTest() {
+  @Test(expected = Exception.class)
+  public void selectItemsFakeTypeTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
-    ArrayList<Item> returned = manager.selectItem("Does Not Exist", "lamp");
+    ArrayList<Item> returned = manager.selectItems("Does Not Exist", "lamp");
     ArrayList<Item> shouldEqual = new ArrayList<Item>(0);
-    assertTrue(SELECTITEM_MESSAGE, compareArrayList(returned, shouldEqual));
+    manager.close();
   }
 
   @Test
-  public void selectManufacturersTest() {
+  public void selectManufacturersTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
     ArrayList<String> returned = manager.selectManufacturers();
@@ -144,7 +151,7 @@ public class SupplyChainManagerTest {
     shouldEqual.add("Chairs R Us");
     shouldEqual.add("Furniture Goods");
     shouldEqual.add("Fine Office Supplies");
-
+    manager.close();
     assertTrue(SELECTMANU_MESSAGE, shouldEqual.equals(returned));
   }
   
@@ -521,11 +528,195 @@ public class SupplyChainManagerTest {
     }
     assertTrue(BESTCOMBO_MESSAGE, isSame);
   }
+  
+  @Test(expected = IndexOutOfBoundsException.class)
+  public void selectBestCombinationsEmptyTest() throws Exception{
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    ArrayList<Item> items = new ArrayList<Item>();
+    String [] firstItem = {"N", "N", "Y"};
+    String [] secondItem = {"N", "N", "Y"};
+    String [] thirdItem = {"N", "Y", "Y"};
+    String [] fourthItem = {"N", "Y", "N"};
+    String [] fifthItem = {"N", "N", "N"};
+    items.add(new Item("F003", "Large", firstItem, "150", "002"));
+    items.add(new Item("F010", "Large", secondItem, "225", "002"));
+    items.add(new Item("F011", "Large", thirdItem, "225", "005"));
+    items.add(new Item("F012", "Large", fourthItem, "75", "005"));
+    items.add(new Item("F015", "Large", fifthItem, "75", "004"));
+    ArrayList<Item> bestCombo = manager.selectBestCombination(items);
+  }
+
   @Test
-  public void initializeConnectionTest(){
+  public void runDeskTest(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    manager.run("Adjustable", "desk", "1");
+    ArrayList<String> allData = new ArrayList<String>();
+    try {
+        File obj = new File("OutputFile.txt");
+        Scanner reader = new Scanner(obj);
+        while (reader.hasNextLine()) {
+          String data = reader.nextLine();
+          allData.add(data);
+        }
+        reader.close();
+    } catch (FileNotFoundException e) {
+        System.out.println("An error occurred.");
+        e.printStackTrace();
+    }
+    ArrayList<String> shouldEqual = new ArrayList<String>();
+
+    //Initialize our expected results into a string array.
+    shouldEqual.add("Furniture Order Form");
+    shouldEqual.add("");
+    shouldEqual.add("Faculty Name:");
+    shouldEqual.add("Contact:");
+    shouldEqual.add("Date:");
+    shouldEqual.add("");
+    shouldEqual.add("Original Request: Adjustable desk, 1");
+    shouldEqual.add("");
+    shouldEqual.add("Items Ordered");
+    shouldEqual.add("ID: D3682");
+    shouldEqual.add("ID: D1030");
+    shouldEqual.add("ID: D5437");
+    shouldEqual.add("");
+    shouldEqual.add("Total Price: $250");
+
+    boolean isEqual = true;
+    if(allData.size() == shouldEqual.size()){
+        for(int i = 0; i<allData.size(); i++){
+            if(!shouldEqual.get(i).equals(allData.get(i))){
+                isEqual = false;
+            }
+        }
+    }
+    else{
+        isEqual = false;
+    }
+    if(isEqual){
+        ArrayList<Item> toRestore = new ArrayList<Item>();
+        String[] firstItem = {"N", "N", "Y"};
+        toRestore.add(new Item("D3682", "Adjustable", firstItem, "50", "005"));
+        String[] secondItem = {"N", "Y", "N"};
+        toRestore.add(new Item("D1030", "Adjustable", secondItem, "150", "002"));
+        String[] thirdItem = {"Y", "N", "N"};
+        toRestore.add(new Item("D5437", "Adjustable", thirdItem, "50", "001"));
+        manager.initializeConnection();
+        manager.resetSQL(toRestore);
+        manager.close();
+    }
+    assertTrue(RUN_MESSAGE, isEqual);
+
+  }
+  
+  @Test
+  public void runDeskTwoQuantityTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     manager.initializeConnection();
+    manager.run("Adjustable", "desk", "2");
+    ArrayList<String> allData = new ArrayList<String>();
+    try {
+        File obj = new File("OutputFile.txt");
+        Scanner reader = new Scanner(obj);
+        while (reader.hasNextLine()) {
+          String data = reader.nextLine();
+          allData.add(data);
+        }
+        reader.close();
+    } catch (FileNotFoundException e) {
+        System.out.println("An error occurred.");
+        e.printStackTrace();
+    }
+    ArrayList<String> shouldEqual = new ArrayList<String>();
+
+    //Initialize our expected results into a string array.
+    shouldEqual.add("Furniture Order Form");
+    shouldEqual.add("");
+    shouldEqual.add("Faculty Name:");
+    shouldEqual.add("Contact:");
+    shouldEqual.add("Date:");
+    shouldEqual.add("");
+    shouldEqual.add("Original Request: Adjustable desk, 2");
+    shouldEqual.add("");
+    shouldEqual.add("Items Ordered");
+    shouldEqual.add("ID: D2746");
+    shouldEqual.add("ID: D1030");
+    shouldEqual.add("ID: D4475");
+    shouldEqual.add("ID: D5437");
+    shouldEqual.add("");
+    shouldEqual.add("Total Price: $650");
+    System.out.println(allData.get(8));
+    boolean isEqual = true;
+    if(allData.size() == shouldEqual.size()){
+        for(int i = 0; i<allData.size(); i++){
+            if(!shouldEqual.get(i).equals(allData.get(i))){
+                isEqual = false;
+            }
+        }
+    }
+    else{
+        isEqual = false;
+    }
+    if(isEqual){
+        ArrayList<Item> toRestore = new ArrayList<Item>();
+        String[] firstItem = {"Y", "N", "Y"};
+        toRestore.add(new Item("D2746", "Adjustable", firstItem, "250", "004"));
+        String[] secondItem = {"N", "Y", "N"};
+        toRestore.add(new Item("D1030", "Adjustable", secondItem, "150", "002"));
+        String[] thirdItem = {"N", "Y", "Y"};
+        toRestore.add(new Item("D4475", "Adjustable", thirdItem, "200", "002"));
+        String[] fourthItem = {"Y", "N", "N"};
+        toRestore.add(new Item("D5437", "Adjustable", fourthItem, "50", "001"));
+        manager.initializeConnection();
+        manager.resetSQL(toRestore);    
+        manager.close();
+    }
+    assertTrue(RUN_MESSAGE, isEqual);
+  }
+
+  @Test
+  public void runDeskNotPossibleTest(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    manager.initializeConnection();
+    manager.run("Adjustable", "desk", "4");
+    ArrayList<String> allData = new ArrayList<String>();
+    try {
+        File obj = new File("OutputFile.txt");
+        Scanner reader = new Scanner(obj);
+        while (reader.hasNextLine()) {
+          String data = reader.nextLine();
+          allData.add(data);
+        }
+        reader.close();
+    } catch (FileNotFoundException e) {
+        System.out.println("An error occurred.");
+        e.printStackTrace();
+    }
+    ArrayList<String> shouldEqual = new ArrayList<String>();
+
+    //Initialize our expected results into a string array.
+    shouldEqual.add("Furniture Order Form");
+    shouldEqual.add("");
+    shouldEqual.add("Faculty Name:");
+    shouldEqual.add("Contact:");
+    shouldEqual.add("Date:");
+    shouldEqual.add("");
+    shouldEqual.add("Original Request: Adjustable desk, 4");
+    shouldEqual.add("");
+    shouldEqual.add("Order cannot be fulfilled based on current inventory. Suggested manufacturers are Academic Desks, Office Furnishings, Furniture Goods, Fine Office Supplies.");
+
+    boolean isEqual = true;
+    if(allData.size() == shouldEqual.size()){
+        for(int i = 0; i<allData.size(); i++){
+            if(!shouldEqual.get(i).equals(allData.get(i))){
+                isEqual = false;
+            }
+        }
+    }
+    else{
+        isEqual = false;
+    }
     
+    assertTrue(RUN_MESSAGE, isEqual);
   }
   private boolean compareArrayList(ArrayList<Item> one, ArrayList<Item> two){
     if(one.size()!=two.size()){
@@ -550,8 +741,20 @@ public class SupplyChainManagerTest {
     }
     return true;
   }
-  public void selectBestCombinationsEmptyTest() throws Exception{
+
+  @Test
+  public void initializeConnectionTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
-    
+    manager.initializeConnection();
+    assertTrue(INITIALIZE_MESSAGE, !manager.getDBConnect().isClosed());
+  }
+  
+  @Test
+  public void closeConnectionTest() throws Exception{
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    manager.initializeConnection();
+    manager.close();
+    assertTrue(CLOSE_MESSAGE, manager.getDBConnect().isClosed());
+  }
   //public void runTest("name", 
 }
