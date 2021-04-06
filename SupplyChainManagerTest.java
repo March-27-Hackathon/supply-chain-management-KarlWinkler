@@ -406,6 +406,45 @@ public class SupplyChainManagerTest {
     assertTrue(REMOVEDUP_MESSAGE, isSame);
   }
 
+  
+  @Test
+  public void combinationsByPriceTest() {
+	  manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+	    //Initialize some data to put into create combos function 
+	    ArrayList<Item> items = new ArrayList<Item>(5);
+	    String [] firstItem = {"N", "N", "Y"};
+	    String [] secondItem = {"Y", "N", "Y"};
+	    String [] thirdItem = {"N", "Y", "Y"};
+	    String [] fourthItem = {"N", "Y", "N"};
+	    String [] fifthItem = {"Y", "N", "N"};
+	    items.add(new Item("F003", "Large", firstItem, "150", "002"));
+	    items.add(new Item("F010", "Large", secondItem, "225", "002"));
+	    items.add(new Item("F011", "Large", thirdItem, "225", "005"));
+	    items.add(new Item("F012", "Large", fourthItem, "75", "005"));
+	    items.add(new Item("F015", "Large", fifthItem, "75", "004"));
+	    int price = Integer.valueOf(items.get(0).getPrice());
+	    // array holds an array of arrays of items that have each part
+	    //	example
+	    //arrayA: item1, item2, item4
+	    //arrayB: item2, item3
+	    //arrayC: item5
+	    ArrayList<ArrayList<Item>> array = new ArrayList<ArrayList<Item>>();  
+	    //puts items into sub-arrays based on whether they have parts or not
+	    for(int i = 0; i < 5; i++) {
+	        array.add(new ArrayList<Item>());
+	        for(Item a : items) {
+	            if(Integer.valueOf(a.getPrice())==price) { // if the variable = 'Y'
+	                array.get(i).add(a);
+	            }
+	        }
+	    }
+
+	    //Create combinations from parts
+	    ArrayList<ArrayList<Item>> combinations = manager.createCombinations(array);
+	    combinations = manager.removeDuplicates(combinations);	    
+  }
+  
+  
   @Test
   public void getPriceForCombinationsTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
