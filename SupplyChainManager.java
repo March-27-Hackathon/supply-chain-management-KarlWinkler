@@ -22,7 +22,6 @@ furniture or specify if the request is not possible to fill.
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class SupplyChainManager {
 	/**Database url*/
@@ -334,6 +333,12 @@ public class SupplyChainManager {
 		return combinations.get(index);
 	}
 	
+	/**
+	 * Returns an array of all the combinations prices with the same indices as 
+	 * the combinations array
+	 * @param arr Combinations array
+	 * @return The prices of each combination as an array
+	 */
 	public ArrayList<ArrayList<Item>> combinationsByPrice(ArrayList<Item> arr){
 		
 		ArrayList<ArrayList<Item>> combinations = new ArrayList<ArrayList<Item>>();
@@ -397,6 +402,11 @@ public class SupplyChainManager {
 		return toChange;
 	}
 	
+	/**
+	 * Removes any combinations that already exist, irrespective of order 
+	 * @param array Array to clean
+	 * @return Cleaned array
+	 */
 	public ArrayList<ArrayList<Item>> findUnique(ArrayList<ArrayList<Item>> array){
 		ArrayList<ArrayList<Item>> unique = new ArrayList<ArrayList<Item>>();
 		boolean matched = false;
@@ -418,13 +428,19 @@ public class SupplyChainManager {
 		return unique;
 	}
 	
-	public boolean matches(ArrayList<Item> arrOne, ArrayList<Item> arrTwo) {
+	//checks if two combinations match
+	private boolean matches(ArrayList<Item> arrOne, ArrayList<Item> arrTwo) {
 		if(sort(arrOne).equals(sort(arrTwo))) {
 			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * Removes any combinations that use an item twice
+	 * @param toChange array that will have combinations removed
+	 * @return The cleaned array
+	 */
 	public ArrayList<ArrayList<Item>> removeInvalid(ArrayList<ArrayList<Item>> toChange){
 		boolean removed = false;
 		for(int i = 0; i < toChange.size(); i++) {
@@ -469,8 +485,10 @@ public class SupplyChainManager {
 	 * @return the Cartesian product of the set at index with the result of 
 	 * createCombinations with index + 1
 	 */
-	public ArrayList<ArrayList<Item>>createCombinations(int index, ArrayList<ArrayList<Item>> combinations) {
-		ArrayList<ArrayList<Item>> returnArray = new ArrayList<ArrayList<Item>>();
+	public ArrayList<ArrayList<Item>>createCombinations(int index, 
+			ArrayList<ArrayList<Item>> combinations) {
+		ArrayList<ArrayList<Item>> returnArray = 
+				new ArrayList<ArrayList<Item>>();
 		if (index == combinations.size()) {
 			returnArray.add(new ArrayList<Item>());
 		} else {
@@ -485,12 +503,31 @@ public class SupplyChainManager {
 		return returnArray;
 	}
 	
-	public ArrayList<ArrayList<Item>>powerSet(int power, ArrayList<ArrayList<Item>> combinations){
+	/**
+	 * Entrance into the recursion to make the power set
+	 * @param Power the times it will combine with the original array 
+	 * combinations
+	 * @param Combinations the base set
+	 * @return The power set to the given power 
+	 */
+	public ArrayList<ArrayList<Item>>powerSet(int power, 
+			ArrayList<ArrayList<Item>> combinations){
 		
 		return powerSet(power, combinations, combinations);
 	}
 	
-	public ArrayList<ArrayList<Item>>powerSet(int power, ArrayList<ArrayList<Item>> combinations, ArrayList<ArrayList<Item>> powerSet){
+	/**
+	 * Returns the power set of the given array, you can set it to any power > 0 
+	 * @param Power the times it will combine with the original array 
+	 * combinations
+	 * @param Combinations the base set
+	 * @param PowerSet the current iteration of the powerSet
+	 * @return The power set with the power reduced by 1 until power <= 1 then 
+	 * returns the power set 
+	 */
+	public ArrayList<ArrayList<Item>>powerSet(int power, 
+			ArrayList<ArrayList<Item>> combinations,
+			ArrayList<ArrayList<Item>> powerSet){
 		
 		ArrayList<ArrayList<Item>> sets = new ArrayList<ArrayList<Item>>();
 	    if (combinations.isEmpty()) {
@@ -516,6 +553,12 @@ public class SupplyChainManager {
 	    return powerSet(power - 1, combinations, sets);
 	}
 	
+	/**
+	 * compares two Items to see if they are equal
+	 * @param one first item to compare
+	 * @param two second item to compare
+	 * @return True if they are equal false otherwise
+	 */
 	private boolean compareItems(Item one, Item two){
 		if(!one.getId().equals(two.getId())){
 			return false;
@@ -540,6 +583,11 @@ public class SupplyChainManager {
 		return true;
 	}
 	
+	/**
+	 * Ascending Insertion Sort 
+	 * @param toSort array that is being sorted
+	 * @return the sorted array
+	 */
 	public ArrayList<Item> sort(ArrayList<Item> toSort){
 		int j;
 		for (int i = 1; i < toSort.size(); i++) {
