@@ -693,28 +693,67 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * Takes three command line arguments ; ItemName, TableName, quantity ; 
+	 * Takes three inputs, a type, a furniture category and quantity of items requested
 	 * It will run the supply chain manager to give the cheapest combination of 
 	 * items to build a full one or give recommendations for manufacturers that 
 	 * sell the items you are looking for if the program can't build a full item
 	 * from the current stock.
-	 * @param args Main uses the first three arguments (ItemName, TableName, 
-	 * quantity)
+	 * @param args not used by main
 	 */
 	public static void main(String[] args) {
-
-		if(args.length < 3) {
-			System.err.print("Please supply three arguments (ItemName, "
-					+ "TableName, quantity)");
-			return;
-		}
 
 		//change this to your MySQL account stuff
 		SupplyChainManager myJDBC = new SupplyChainManager(
 				"jdbc:mysql://localhost/inventory","ensf409","ensf409");
+		
+		
+		Scanner myObj = new Scanner(System.in);
+		String input = "";
+		do {
+			
+			System.out.println("Please enter the type of object (starting with a capital letter), followed by the name of the table the objects belong to (no capital letter), then finally the quantity of items desired (a number) ");
+			System.out.println("Please enter \"exit\" if you wish to terminate the program:");
+			input = myObj.nextLine();
 
-		myJDBC.run(args[0], args[1], args[2]);
-
+			int spaces = 0;
+			if(!input.equals("exit")) {
+				for(int i = 0; i < input.length(); i++) {
+					if(input.charAt(i) == ' ') {
+						spaces++;
+					}
+				}
+				
+				if(spaces != 2) {
+					throw new IllegalArgumentException();
+				}
+			}
+			else{
+				break;
+			}
+			
+			
+			int i = 0;
+			while(input.charAt(i) != ' ') {
+				i++;
+			}
+			
+			int i1 = i++;
+			
+			while(input.charAt(i) != ' ') {
+				i++;
+			}
+			boolean runBool = myJDBC.run(input.substring(0, i1), input.substring(i1 + 1, i), input.substring(i+1));
+			
+			System.out.println();
+			if(runBool) {
+				System.out.println("Output file generated: Order Fulfilled");
+			}
+			else {
+				System.out.println("Output file generated: Order Failed");
+			}
+			System.out.println();
+		} while(!input.equalsIgnoreCase("exit"));
+		myObj.close();
 	}
 }
 	
