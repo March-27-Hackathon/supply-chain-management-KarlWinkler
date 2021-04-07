@@ -409,9 +409,6 @@ public class SupplyChainManagerTest {
   }
 
   
- 
-  
-  
   @Test
   public void getPriceForCombinationsTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -581,8 +578,8 @@ public class SupplyChainManagerTest {
     shouldEqual.add("Original Request: Adjustable desk, 1");
     shouldEqual.add("");
     shouldEqual.add("Items Ordered");
-    shouldEqual.add("ID: D3682");
     shouldEqual.add("ID: D1030");
+    shouldEqual.add("ID: D3682");
     shouldEqual.add("ID: D5437");
     shouldEqual.add("");
     shouldEqual.add("Total Price: $250");
@@ -644,8 +641,8 @@ public class SupplyChainManagerTest {
     shouldEqual.add("Original Request: Adjustable desk, 2");
     shouldEqual.add("");
     shouldEqual.add("Items Ordered");
-    shouldEqual.add("ID: D2746");
     shouldEqual.add("ID: D1030");
+    shouldEqual.add("ID: D2746");
     shouldEqual.add("ID: D4475");
     shouldEqual.add("ID: D5437");
     shouldEqual.add("");
@@ -848,7 +845,7 @@ public class SupplyChainManagerTest {
 	    else{
 	        isSame = false;
 	    }
-	    assertTrue(REMOVEDUP_MESSAGE, isSame);
+	    assertTrue(POWERSET_MESSAGE, isSame);
 	    
   }
   
@@ -892,6 +889,50 @@ public class SupplyChainManagerTest {
 	    assertTrue(NICESORT_MESSAGE, isSame);
   }
 	
+  @Test 
+  public void findUnique(){
+    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
+    //Initialize some data to put into create combos function 
+    ArrayList<ArrayList<Item>> combo = new ArrayList<ArrayList<Item>>();
+    String [] firstItem = {"N", "N", "Y"};
+    String [] secondItem = {"Y", "N", "Y"};
+    String [] thirdItem = {"N", "Y", "Y"};
+    String [] fourthItem = {"N", "Y", "N"};
+    String [] fifthItem = {"Y", "N", "N"};
+    combo.add(new ArrayList<Item>());
+    combo.get(0).add(new Item("F003", "Large", firstItem, "150", "002"));
+    combo.get(0).add(new Item("F010", "Large", secondItem, "225", "002"));
+    combo.get(0).add(new Item("F011", "Large", thirdItem, "225", "005"));
+    combo.add(new ArrayList<Item>());
+    combo.get(1).add(new Item("F012", "Large", fourthItem, "75", "005"));
+    combo.get(1).add(new Item("F015", "Large", fifthItem, "75", "004"));
+    combo.get(1).add(new Item("F003", "Large", firstItem, "150", "002"));
+    combo.add(new ArrayList<Item>());
+    combo.get(2).add(new Item("F003", "Large", firstItem, "150", "002"));
+    combo.get(2).add(new Item("F010", "Large", secondItem, "225", "002"));
+    combo.get(2).add(new Item("F011", "Large", thirdItem, "225", "005"));
+    combo.add(new ArrayList<Item>());
+    combo.get(3).add(new Item("F003", "Large", firstItem, "150", "002"));
+    combo.get(3).add(new Item("F015", "Large", fifthItem, "75", "004"));
+    combo.get(3).add(new Item("F011", "Large", thirdItem, "225", "005"));
+    System.out.println();
+    for(int i = 0; i<combo.size(); i++){
+        for(int j = 0; j<combo.get(i).size(); j++){
+            System.out.print(combo.get(i).get(j).getId()+", ");
+        }
+        System.out.println();
+    }
+    System.out.println();
+
+    ArrayList<ArrayList<Item>> unique = manager.findUnique(combo);
+    for(int i = 0; i<unique.size(); i++){
+        for(int j = 0; j<unique.get(i).size(); j++){
+            System.out.print(unique.get(i).get(j).getId()+", ");
+        }
+        System.out.println();
+    }
+  }
+
 
   @Test
   public void initializeConnectionTest() throws Exception{

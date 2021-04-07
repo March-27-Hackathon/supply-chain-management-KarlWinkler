@@ -94,7 +94,6 @@ public class SupplyChainManager {
 				for(Item e : ac) {
 					sum += Integer.valueOf(e.getPrice());
 					ids.add(e.getId());
-					System.out.println(e.getId());
 				}
 				OutFile f = new OutFile(name + " " + tableName, quantity, ids, sum);
 
@@ -481,10 +480,17 @@ public class SupplyChainManager {
 	
 	//checks if two combinations match
 	private boolean matches(ArrayList<Item> arrOne, ArrayList<Item> arrTwo) {
-		if(sort(arrOne).equals(sort(arrTwo))) {
-			return true;
+		if(arrOne.size()!=arrTwo.size()){
+			return false;
 		}
-		return false;
+		arrOne = sort(arrOne);
+		arrTwo = sort(arrTwo);
+		for(int i = 0; i<arrOne.size(); i++){
+			if(!arrOne.get(i).getId().equals(arrTwo.get(i).getId())){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -671,9 +677,7 @@ public class SupplyChainManager {
 			} //end if
 		} //end for
 		for(Item i : toSort) {
-			System.out.print(i.getId() + " : ");
 		}
-		System.out.print(" || ");
 		return toSort;
 	}
 		 
