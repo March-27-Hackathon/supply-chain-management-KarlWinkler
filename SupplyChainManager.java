@@ -1,27 +1,26 @@
 /**
-@author ******This needs to be completed
-@version 5.2
+@author Karl Winkler, Zheng Chen, Maxwell Botham, and Rui Guan
+@version 5.1
 @since 1.0
 */
 /*
-In this program, we need to design an application to calculate the cheapest combination of 
-available inventory items that can be used to fill a specific order. For example, if someone
-need a new chair, the application should look through the database and find all the 
-This application should connect with a database, which records all the information of the 
-need a new chair, the application should look through the database and find all the components
-which can be combined and build a new chair.
-It should connect with a database, which records all the information of the 
-inventories such as ID, type, price, manufacturer, and condition. The application should find 
-the best plan to combine a new furniture we need. 
-The best plan must have the good condition and lowest price.
-It should accept the users' input for 1) a furniture category, 2) its type, and 3) the number of 
-items requested and calculate and output the cheapest option for creating the requested pieces of
-furniture or specify if the request is not possible to fill.
+In this program, we need to design an application to calculate the 
+cheapest combination of available inventory items that can be used to fill a 
+specific order. For example, if someone needs a new chair, the application 
+should look through the database and find all the components, which can be 
+combined and build a new chair. It connects with a database, which holds all the
+information of the inventory such as ID, type, price, manufacturer, and 
+condition of the items. The application finds the best combination of the new 
+furniture we need. The best combination will have all of the required parts at
+the lowest price. It accepts the users' input for 1) its type, 2) a furniture 
+category, and 3) the number of items requested, and calculate and output the 
+cheapest option for creating the requested pieces of furniture or specify if the 
+request is not possible to fill.
 */
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 
 public class SupplyChainManager {
 	/**Database url*/
@@ -42,14 +41,14 @@ public class SupplyChainManager {
 	 * @param username MySQL user username
 	 * @param password MySQL user password
 	 */
-	//constructor with three arguments, which are the URL of the database, the username
+	//constructor with three arguments, which are the URL of the database, the 
+	//username
 	//and the password of the local host
-	public SupplyChainManager(String databaseURL, String username, String password){
+	public SupplyChainManager(String databaseURL, String username, 
+			String password){
 		this.DBURL =  databaseURL; 
 		this.USERNAME = username;
 		this.PASSWORD = password;
-		
-		initializeConnection();
 	}
 
 	//method initializeConnection is used for connect to the database driver
@@ -58,14 +57,15 @@ public class SupplyChainManager {
 			dbConnect = DriverManager.getConnection(DBURL, USERNAME, PASSWORD);
 		} catch (SQLException e) {
 			//if failed, throw an SQLException
-			e.printStackTrace();
+			System.err.print(e);
 		}
 	}
 
 	/**
 	 * Takes in the name of the desired item and the table it is located in,
 	 * then it will use the OutFile class to write the best combination of
-	 * items to an output file. returns a Boolean of whether a combination was found.
+	 * items to an output file. returns a Boolean of whether a combination was 
+	 * found.
 	 * @param name name of the item
 	 * @param tableName name of the type of item
 	 * @param quantity how many items
@@ -73,13 +73,17 @@ public class SupplyChainManager {
 	 */
 	
 	public boolean run(String name, String tableName, String quantity) {
+		initializeConnection();
 		this.quantity = Integer.valueOf(quantity);
 		try {
 			//selects the best combo and deletes the items out of the database
-			//throws NoValidCombinationException if there is no way to make a full item
-			ArrayList<ArrayList<Item>> allCombos = new ArrayList<ArrayList<Item>>();
+			//throws NoValidCombinationException if there is no way to make a 
+			//full item
+			ArrayList<ArrayList<Item>> allCombos = 
+					new ArrayList<ArrayList<Item>>();
 			
-			ArrayList<Item> a = selectBestCombination(selectItems(name, tableName));//throws NoValidCombinationException
+			ArrayList<Item> a = selectBestCombination(selectItems(name, 
+					tableName));//throws NoValidCombinationException
 			allCombos.add(a);
 			for(Item e : a) {
 				deleteID(e.getId(), tableName); //TODO uncomment
@@ -87,7 +91,8 @@ public class SupplyChainManager {
 			
 
 				
-			//prints out a form for all of the items required to make the desired amount of items
+			//prints out a form for all of the items required to make the desired 
+			//amount of items
 			ArrayList<String> ids = new ArrayList<String>();
 			int sum = 0;
 			for(ArrayList<Item> ac : allCombos) {
@@ -95,17 +100,19 @@ public class SupplyChainManager {
 					sum += Integer.valueOf(e.getPrice());
 					ids.add(e.getId());
 				}
-				OutFile f = new OutFile(name + " " + tableName, quantity, ids, sum);
+				OutFile f = new OutFile(name + " " + tableName, 
+						quantity, ids, sum);
 
 				f.writeOutFile();
 			}
 		} catch (Exception e) {
 			try {
 				//prints out a form saying that no Item could be created
-				OutFile f = new OutFile(tableName, quantity, selectManufacturers());
+				OutFile f = new OutFile(tableName, quantity, 
+						selectManufacturers());
 				f.writeNoneAvailable(name);
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				System.err.print(e);
 			}
 			return false;
 		}
@@ -153,13 +160,16 @@ public class SupplyChainManager {
 			default: 
 				break;
 		}
-		String insert = ("INSERT INTO "+object+" (ID, Type, "+typeVars+", Price, ManuID)\n");
+		String insert = ("INSERT INTO "+object+" (ID, Type, "+typeVars+", Price, "
+				+ "ManuID)\n");
 		for(int i = 0; i<toRestore.size(); i++){
 			typeVars = "";
 			for(int j = 0; j<toRestore.get(i).getTypeVariables().length; j++){
 				typeVars+=toRestore.get(i).getTypeVariables()[j]+y;
 			}
-			String values = "VALUES (\'"+toRestore.get(i).getId()+y+toRestore.get(i).getType()+y+typeVars+toRestore.get(i).getPrice()+y+toRestore.get(i).getManuID()+"\');";
+			String values = "VALUES (\'"+toRestore.get(i).getId()+y+toRestore.
+					get(i).getType()+y+typeVars+toRestore.get(i).getPrice()+ y + 
+					toRestore.get(i).getManuID()+"\');";
 			try {
 				Statement newStmt = dbConnect.createStatement();
 				String finalStatement = insert+values;
@@ -167,20 +177,18 @@ public class SupplyChainManager {
 				//release the data
 				newStmt.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.err.print(e);
 			}
 		}
 	}
 	/**
-	 * Deletes the Item with the ID id out of the table with tableName in the 
-	 * database.
-	 * method deleteID is used for deleting an Item with a specified ID id out of the database
-	   There are two arguments, id and tableName
+	 * method deleteID is used for deleting an Item with a specified ID id out 
+	 * of the database.
 	 * @param id ID of the item to be deleted
 	 * @param tableName Table to delete the item from
 	 */
 	public void deleteID(String id, String tableName) {
-		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'" ;
+		String query = "DELETE FROM "+ tableName + " WHERE ID = \'" + id + "\'";
 		try {
 			Statement newStmt = dbConnect.createStatement();
 			//execute the statement
@@ -188,19 +196,21 @@ public class SupplyChainManager {
 			//release the data
 			newStmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.print(e);
 		}
 	}
 
 	/**
-	 * Takes a table name and an item name and returns an ArrayList of all the of items
-	 * from the table.
+	 * Takes a table name and an item name and returns an ArrayList of all the 
+	 * of items from the table.
 	 * @param name Name of the item to look for
 	 * @param tableName Name of the table the item belongs to
 	 * @return Returns an ArrayList with all of the results of the query
 	 */
-	public ArrayList<Item> selectItems(String name, String tableName) throws Exception{
-		String query = "SELECT * FROM "+ tableName + " WHERE Type = \'" + name + "\'" ;
+	public ArrayList<Item> selectItems(String name, String tableName) 
+			throws Exception{
+		String query = "SELECT * FROM "+ tableName + " WHERE Type = \'" + name 
+				+ "\'" ;
 		ArrayList<Item> outputArray = new ArrayList<Item>();
 		try {
 			Statement newStmt = dbConnect.createStatement();
@@ -212,7 +222,7 @@ public class SupplyChainManager {
 			//release the data
 			newStmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.print(e);
 		}
 		// makes sure there are items found in the table
 		if(outputArray.size() < 1) { 
@@ -229,8 +239,8 @@ public class SupplyChainManager {
 	/**
 	 * Returns an array of all manufacturers names from the manufacturer table.
 	 * @return ArrayList of the names of the manufacturers
-	 * method selectManufacturers, which is used for selecting the items with the 
-	   specified manufactures from the table. There is no argument.
+	 * method selectManufacturers, which is used for selecting the items with 
+	 * the specified manufactures from the table. There is no argument.
 	 */
 	public ArrayList<String> selectManufacturers(){
 		String query = "SELECT * FROM manufacturer";
@@ -245,14 +255,15 @@ public class SupplyChainManager {
 			//release the data
 			newStmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.print(e);
 		}
 		return outputArray;
 	}
 	
 
 	/**
-	 * method newItem, which is used for creating a new Item based on what the tableName is.
+	 * method newItem, which is used for creating a new Item based on what the 
+	 * tableName is.
 	 * It uses a switch statement to select the name, then creating an array of 
 	 * the items parts data (Y/N) then creating a new item based on the data
 	 * @param result result set from a query
@@ -262,7 +273,7 @@ public class SupplyChainManager {
 	public Item newItem(String tableName) {
 		try {
 			switch(tableName) {
-			//if chairs are needed
+			//if the table is chair
 			case "chair":
 				//array of the variable columns for the table name
 				//each String will be either 'Y' or 'N'
@@ -278,7 +289,7 @@ public class SupplyChainManager {
 						results.getString("Price"), 
 						results.getString("ManuID")
 						);
-
+			//if the table is desk
 			case "desk":
 				String[] deskVars = {
 						results.getString("Legs"), 
@@ -291,7 +302,7 @@ public class SupplyChainManager {
 						results.getString("Price"), 
 						results.getString("ManuID")
 						);
-
+			//if the table is filing
 			case "filing":
 				String[] filingVars = {
 						results.getString("Rails"), 
@@ -304,7 +315,7 @@ public class SupplyChainManager {
 						results.getString("Price"), 
 						results.getString("ManuID")
 						);
-
+			//if the table is desk
 			case "lamp":
 				String[] lampVars = {
 						results.getString("Base"), 
@@ -316,15 +327,15 @@ public class SupplyChainManager {
 						results.getString("Price"), 
 						results.getString("ManuID")
 						);
+			//if the table is none of the above
 			default: 
 				return new Item();
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.err.print(e);
 
 		}
 		return null;
-
 	}
 
 	/**
@@ -334,7 +345,8 @@ public class SupplyChainManager {
 	 * lowest price
 	 * @throws Exception if there are no valid combinations
 	 */
-	public ArrayList<Item> selectBestCombination(ArrayList<Item> items) throws Exception{
+	public ArrayList<Item> selectBestCombination(ArrayList<Item> items) 
+			throws Exception{
 
 		int varsLength = items.get(0).getTypeVariables().length;
 		// parts holds an array of arrays of items that have each part
@@ -348,7 +360,7 @@ public class SupplyChainManager {
 		for(int i = 0; i < varsLength; i++) {
 			parts.add(new ArrayList<Item>());
 			for(Item a : items) {
-				if(a.getTypeVariables()[i].equals("Y")) { // if the variable = 'Y'
+				if(a.getTypeVariables()[i].equals("Y")) {//if the variable = 'Y'
 					parts.get(i).add(a);
 				}
 			}
@@ -362,11 +374,14 @@ public class SupplyChainManager {
 		}
 
 		ArrayList<ArrayList<Item>> combinations = createCombinations(parts);
-
+		//removes duplicate items from each combination
 		combinations = removeDuplicates(combinations);
+		//finds all of the unique combinations
 		combinations = findUnique(combinations);
+		//creates all of the possible sets that can be used to fulfill the 
+		//request
 		combinations = powerSet(quantity, combinations);
-		
+		//removes any combinations that use an item more than once
 		combinations = removeInvalid(combinations);
 		
 		ArrayList<Integer> priceArray = getPriceForCombinations(combinations);
@@ -391,7 +406,8 @@ public class SupplyChainManager {
 	 */
 	public ArrayList<ArrayList<Item>> combinationsByPrice(ArrayList<Item> arr){
 		
-		ArrayList<ArrayList<Item>> combinations = new ArrayList<ArrayList<Item>>();
+		ArrayList<ArrayList<Item>> combinations = 
+				new ArrayList<ArrayList<Item>>();
 		
 		for(int i = 0; i < quantity; i++) {
 			combinations.add(arr);
@@ -408,7 +424,8 @@ public class SupplyChainManager {
 	 * @param arr ArrayList of ArrayLists of type Item
 	 * @return An ArrayList of prices as integers
 	 */
-	public  ArrayList<Integer> getPriceForCombinations(ArrayList<ArrayList<Item>> arr){
+	public  ArrayList<Integer> getPriceForCombinations(
+			ArrayList<ArrayList<Item>> arr){
 
 		//arrayList that will be returned
 		ArrayList<Integer> prices = new ArrayList<Integer>(); 
@@ -430,12 +447,14 @@ public class SupplyChainManager {
 	 * @param toChange array of combinations
 	 * @return returns the edited ArrayList
 	 */
-	public ArrayList<ArrayList<Item>> removeDuplicates(ArrayList<ArrayList<Item>> toChange){
+	public ArrayList<ArrayList<Item>> removeDuplicates(
+			ArrayList<ArrayList<Item>> toChange){
 		boolean removed = false;
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
 				for(int k = j + 1; k < toChange.get(i).size(); k++) {
-					if(compareItems(toChange.get(i).get(k), toChange.get(i).get(j))) {
+					if(compareItems(toChange.get(i).get(k), 
+							toChange.get(i).get(j))) {
 						toChange.get(i).remove(k);
 						i--;
 						removed = true;
@@ -453,11 +472,13 @@ public class SupplyChainManager {
 	}
 	
 	/**
-	 * Removes any combinations that already exist, irrespective of order 
+	 * Removes any combinations that already exist, irrespective of order and 
+	 * returns an arraylist of all of the unique combinations
 	 * @param array Array to clean
 	 * @return Cleaned array
 	 */
-	public ArrayList<ArrayList<Item>> findUnique(ArrayList<ArrayList<Item>> array){
+	public ArrayList<ArrayList<Item>> findUnique(
+			ArrayList<ArrayList<Item>> array){
 		ArrayList<ArrayList<Item>> unique = new ArrayList<ArrayList<Item>>();
 		boolean matched = false;
 		unique.add(array.get(0));
@@ -498,25 +519,32 @@ public class SupplyChainManager {
 	 * @param toChange array that will have combinations removed
 	 * @return The cleaned array
 	 */
-	public ArrayList<ArrayList<Item>> removeInvalid(ArrayList<ArrayList<Item>> toChange){
+	public ArrayList<ArrayList<Item>> removeInvalid(
+			ArrayList<ArrayList<Item>> toChange){
 		boolean removed = false;
+		//itterates through the array to change
 		for(int i = 0; i < toChange.size(); i++) {
 			for(int j = 0; j < toChange.get(i).size(); j++) {
+				//itterates through the recorded combinations
 				for(int k = j + 1; k < toChange.get(i).size(); k++) {
-					if(compareItems(toChange.get(i).get(k), toChange.get(i).get(j))) {
+					//checks to see if the sorted arrays match
+					if(compareItems(toChange.get(i).get(k), 
+							toChange.get(i).get(j))) {
+						//removes the duplicate if it matches an existing 
+						//combination
 						toChange.remove(i);
 						i--;
 						removed = true;
 						break;
 					}
 				}
+			//moves onto the next combination if the the last one was removed
 				if(removed) {
 					removed = false;
 					break;
 				}
 			}
 		}
-		
 		return toChange;
 	}
 	
@@ -525,12 +553,13 @@ public class SupplyChainManager {
 	 * @param parts array of sets
 	 * @return the Cartesian product of all of the sets
 	 */
-	public ArrayList<ArrayList<Item>> createCombinations(ArrayList<ArrayList<Item>> parts) {
+	public ArrayList<ArrayList<Item>> createCombinations(
+			ArrayList<ArrayList<Item>> parts) {
 		if (parts.size() < 2)
 			throw new IllegalArgumentException(
 					"Can't have a product of fewer than two sets (got " +
 							parts.size() + ")");
-
+		//calls the recursive method with starting values
 		return createCombinations(0, parts);
 	}
 
@@ -549,6 +578,8 @@ public class SupplyChainManager {
 		if (index == combinations.size()) {
 			returnArray.add(new ArrayList<Item>());
 		} else {
+			//builds the Cartesian product by looping through the array and
+			//adding all the elements to the return array
 			for (Item element : combinations.get(index)) {
 				for (ArrayList<Item> set : createCombinations(index + 1, 
 						combinations)) {
@@ -592,12 +623,13 @@ public class SupplyChainManager {
 	        return sets;
 	    }
 	    if(power <= 1) {
-//	    	if(powerSet.isEmpty()) {
-//	    		return combinations;
-//	    	}
 	    	return powerSet;
 	    }
-	    ArrayList<ArrayList<Item>> list = new ArrayList<ArrayList<Item>>(powerSet);
+	    //for every set in powerSet it will add a set to sets with the 
+	    //values of a combination from combinations to powerSet[i] for each
+	    //set in combinations
+	    ArrayList<ArrayList<Item>> list = 
+	    		new ArrayList<ArrayList<Item>>(powerSet);
 	    for (int i = 0; i < list.size(); i++) {
 	    	for(int j = 0; j < combinations.size(); j++) {
 	    		ArrayList<Item> set = new ArrayList<Item>(list.get(i));
@@ -607,6 +639,7 @@ public class SupplyChainManager {
 	    		sets.add(set);
 	    	}
 	    } 
+	    //repeats the process until the order == 0.
 	    return powerSet(power - 1, combinations, sets);
 	}
 	
@@ -633,51 +666,36 @@ public class SupplyChainManager {
 			return false;
 		}
 		for(int i = 0; i<one.getTypeVariables().length; i++){
-			if(!one.getTypeVariables()[i].equalsIgnoreCase(two.getTypeVariables()[i])){
+			if(!one.getTypeVariables()[i]
+					.equalsIgnoreCase(two.getTypeVariables()[i])){
 				return false;
 			}
 		}
 		return true;
 	}
-	
 	/**
-	 * Ascending Insertion Sort 
-	 * @param toSort array that is being sorted
-	 * @return the sorted array
+	 * Returns an array sorted in increasing order using an insertion sort
+	 * @param toSort Array that is being sorted
+	 * @return The sorted array
 	 */
-	/*
 	public ArrayList<Item> sort(ArrayList<Item> toSort){
 		int j;
 		for (int i = 1; i < toSort.size(); i++) {
-			if (Integer.valueOf(toSort.get(i).getId().substring(1)) < Integer.valueOf(toSort.get(i-1).getId().substring(1))) {
-				j = i-1;
-				Item  toInsert = toSort.get(i) ;
-				while (Integer.valueOf(toSort.get(j).getId().substring(1)) > Integer.valueOf(toInsert.getId().substring(1)) && j >= 1) {
-					toSort.set(j+1,toSort.get(j)) ; //move list elements to the right to make room for toInsert
-					j-- ;
-				} //end while
-				toSort.set(j+1,toInsert) ; //insert toInsert at correct place in sorted part of list
-			} //end if
-		} //end for
-		return toSort;
-	}
-	*/
-	
-	public ArrayList<Item> sort(ArrayList<Item> toSort){
-		int j;
-		for (int i = 1; i < toSort.size(); i++) {
-			if (Integer.valueOf(toSort.get(i).getId().substring(1)) < Integer.valueOf(toSort.get(i-1).getId().substring(1))) {
+			if (Integer.valueOf(toSort.get(i).getId().substring(1))
+					< Integer.valueOf(toSort.get(i-1).getId().substring(1))) {
 				j = i - 1;
 				Item  toInsert = toSort.get(i) ;
-				while (j >= 0 && Integer.valueOf(toSort.get(j).getId().substring(1)) > Integer.valueOf(toInsert.getId().substring(1))) {
-					toSort.set(j+1,toSort.get(j)); //move list elements to the right to make room for toInsert
+				while (j >= 0 && Integer.valueOf(toSort.get(j).getId()
+						.substring(1)) > Integer.valueOf(toInsert.getId()
+								.substring(1))) {
+					toSort.set(j+1,toSort.get(j)); //move list elements to the 
+					 						 //right to make room for toInsert
 					j-- ;
 				} //end while
-				toSort.set(j+1,toInsert) ; //insert toInsert at correct place in sorted part of list
+				toSort.set(j+1,toInsert) ; //insert toInsert at correct place 
+										  //in sorted part of list
 			} //end if
 		} //end for
-		for(Item i : toSort) {
-		}
 		return toSort;
 	}
 		 
@@ -688,33 +706,42 @@ public class SupplyChainManager {
 		 try {
 	            dbConnect.close();
 	        } catch (SQLException e) {
-	            e.printStackTrace();
+	        	System.err.print(e);
 	        }
 	}
 
 	/**
-	 * Takes three inputs, a type, a furniture category and quantity of items requested
+	 * Asks the user to input a type, a furniture category and quantity of items 
+	 * requested in one line or type exit to quit the program.
+	 * if the user types a valid command the program will run and create a text
+	 * file according to whether the order succeeded or failed
 	 * It will run the supply chain manager to give the cheapest combination of 
 	 * items to build a full one or give recommendations for manufacturers that 
 	 * sell the items you are looking for if the program can't build a full item
 	 * from the current stock.
-	 * @param args not used by main
+	 * @param args not used
 	 */
 	public static void main(String[] args) {
 
 		//change this to your MySQL account stuff
 		SupplyChainManager myJDBC = new SupplyChainManager(
-				"jdbc:mysql://localhost/inventory","ensf409","ensf409");
-		
+				//default required value is":
+				//('jdbc:mysql://localhost/inventory', 'scm', 'ensf409')
+				"jdbc:mysql://localhost/inventory","scm","ensf409");
 		
 		Scanner myObj = new Scanner(System.in);
 		String input = "";
 		do {
-			
-			System.out.println("Please enter the type of object (starting with a capital letter), followed by the name of the table the objects belong to (no capital letter), then finally the quantity of items desired (a number) ");
-			System.out.println("Please enter \"exit\" if you wish to terminate the program:");
+			//input message
+			System.out.println("Please enter the type of object "
+					+ "(starting with a capital letter), followed by the name of"
+					+ " the table the objects belong to (no capital letter), "
+					+ "then finally the quantity of items desired (a number) ");
+			System.out.println("Please enter \"exit\" if you wish to terminate "
+					+ "the program:");
 			input = myObj.nextLine();
 
+			// testing if the input is valid (lazy)
 			int spaces = 0;
 			if(!input.equals("exit")) {
 				for(int i = 0; i < input.length(); i++) {
@@ -724,14 +751,16 @@ public class SupplyChainManager {
 				}
 				
 				if(spaces != 2) {
-					throw new IllegalArgumentException();
+					System.err.print("Illegal Argument Exception, Program "
+							+ "Terminated!");
+					break;
 				}
 			}
 			else{
 				break;
 			}
 			
-			
+			//parsing the input
 			int i = 0;
 			while(input.charAt(i) != ' ') {
 				i++;
@@ -742,7 +771,9 @@ public class SupplyChainManager {
 			while(input.charAt(i) != ' ') {
 				i++;
 			}
-			boolean runBool = myJDBC.run(input.substring(0, i1), input.substring(i1 + 1, i), input.substring(i+1));
+			//running the program and giving the correct output message
+			boolean runBool = myJDBC.run(input.substring(0, i1), 
+					input.substring(i1 + 1, i), input.substring(i+1));
 			
 			System.out.println();
 			if(runBool) {
@@ -752,6 +783,7 @@ public class SupplyChainManager {
 				System.out.println("Output file generated: Order Failed");
 			}
 			System.out.println();
+			//this will never be false because if it is it will break earlier on
 		} while(!input.equalsIgnoreCase("exit"));
 		myObj.close();
 	}
@@ -760,9 +792,10 @@ public class SupplyChainManager {
 
 
 class NoValidCombinationsException extends Exception{
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
+	//uses Exception class constructor to create an exception object
 	public NoValidCombinationsException(String message) {
 		super(message);
 	}

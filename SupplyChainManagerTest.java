@@ -48,10 +48,6 @@ public class SupplyChainManagerTest {
   public static String RUN_MESSAGE = "The function run of SupplyChainManager failed to produce the expected output file.";
   private SupplyChainManager manager;
   private OutFile outfile;
-	
-  /**
-   * constructorTest(), used for testing the constructor
-   */
   @Test
   public void constructorTest() {
     SupplyChainManager constructed = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -63,10 +59,6 @@ public class SupplyChainManagerTest {
     assertTrue(CONSTRUCTOR_MESSAGE, didSetConstants);
   }
   
-  /**
-   * testing the selectItems method if the type of items is desk
-   * @throws Exception
-   */
   @Test
   public void selectItemsDeskTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -85,11 +77,6 @@ public class SupplyChainManagerTest {
     assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
-	
-  /**
-   * testing the selectItems method if the type of items is chair
-   * @throws Exception
-   */
   @Test
   public void selectItemsChairTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -108,11 +95,6 @@ public class SupplyChainManagerTest {
     assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
-	
-  /**
-   * testing the selectItems method if the type of items is filing
-   * @throws Exception
-   */
   @Test
   public void selectItemsFilingTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -133,11 +115,6 @@ public class SupplyChainManagerTest {
     assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
-	
-  /**
-   * testing the selectItems method if the type of items is lamp
-   * @throws Exception
-   */
   @Test
   public void selectItemsLampTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -156,10 +133,6 @@ public class SupplyChainManagerTest {
     assertTrue(selectItems_MESSAGE, compareArrayList(returned, shouldEqual));
   }
 
-  /**
-   * testing the selectItems method when the type of items doesn't exist
-   * @throws Exception
-   */
   @Test(expected = Exception.class)
   public void selectItemsFakeTypeTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -169,11 +142,6 @@ public class SupplyChainManagerTest {
     manager.close();
   }
 
-	
-  /**
-   * testing the selectManufactures method
-   * @throws Exception
-   */
   @Test
   public void selectManufacturersTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -189,11 +157,6 @@ public class SupplyChainManagerTest {
     assertTrue(SELECTMANU_MESSAGE, shouldEqual.equals(returned));
   }
   
-	
-  /**
-   * testing the createCombinations method with one argument
-   * @throws Exception
-   */
   @Test
   public void createCombinationsTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -263,11 +226,6 @@ public class SupplyChainManagerTest {
     assertTrue(CREATECOMBO_MESSAGE, isSame);
 
   }
-	
-  /**
-   * testing the createCombinations method with one argument if there is no best combination
-   * @throws Exception
-   */
   
   @Test
   public void createCombinationsShouldBeEmptyTest() throws Exception{
@@ -298,10 +256,6 @@ public class SupplyChainManagerTest {
     assertTrue(CREATECOMBO_MESSAGE, isEmpty);
   }
 
-	
-  /**
-   * testing the createCombinations method  with one argument if the argument is not available
-   */
   @Test(expected = IllegalArgumentException.class)
   public void createCombinationsExceptionTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -310,10 +264,6 @@ public class SupplyChainManagerTest {
     ArrayList<ArrayList<Item>> combinations = manager.createCombinations(sizeOne);
   }
  
-	
-  /**
-   * test the createCombinations method with one argument and removeDuplicates method
-   */
   @Test
   public void removeDuplicatesTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -389,10 +339,6 @@ public class SupplyChainManagerTest {
     assertTrue(REMOVEDUP_MESSAGE, isSame);
   }
 
-	
-   /**
-   * test the createCombinations method  with one argument and removeDuplicates method if there is no duplicated items
-   */
   @Test
   public void removeDuplicatesNoDuplicatesTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -462,9 +408,7 @@ public class SupplyChainManagerTest {
     assertTrue(REMOVEDUP_MESSAGE, isSame);
   }
 
-  /**
-   * test the createCombinations method  with one argument, removeDuplicates method and getPriceForCombinationsTest 
-   */
+  
   @Test
   public void getPriceForCombinationsTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -533,11 +477,6 @@ public class SupplyChainManagerTest {
     assertTrue(GETPRICE_MESSAGE, isSame);
   }
   
-	
-  /**
-   * test the createCombinations method  with one argument, removeDuplicates method and getPriceForCombinationsTest 
-   * if there is no property combination
-   */
   @Test
   public void getPriceForCombinationsEmptyTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -557,11 +496,6 @@ public class SupplyChainManagerTest {
     assertTrue(GETPRICE_MESSAGE, isEmpty);
   }
  
-	
-  /**
-   * testing the selectBestCombination method
-   * @throws Exception
-   */
   @Test
   public void selectBestCombinationsTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -598,10 +532,6 @@ public class SupplyChainManagerTest {
     assertTrue(BESTCOMBO_MESSAGE, isSame);
   }
   
-  /**
-   * testing the selectBestCombination method if the the argument is not available
-   * @throws Exception
-   */
   @Test(expected = IndexOutOfBoundsException.class)
   public void selectBestCombinationsEmptyTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -619,11 +549,6 @@ public class SupplyChainManagerTest {
     ArrayList<Item> bestCombo = manager.selectBestCombination(items);
   }
 
-	
-   /**
-   * testing the initializeConnection method, close method and run method
-   * if the type of method is desk
-   */
   @Test
   public void runDeskTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -686,11 +611,6 @@ public class SupplyChainManagerTest {
 
   }
   
-	
-  /**
-   * testing the initializeConnection method, close method and run method
-   * if the quantity is 2
-   */
   @Test
   public void runDeskTwoQuantityTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -756,11 +676,6 @@ public class SupplyChainManagerTest {
     assertTrue(RUN_MESSAGE, isEqual);
   }
 
-	
-  /**
-   * testing the initializeConnection method, close method and run method
-   * if there is no fulfilled result
-   */
   @Test
   public void runDeskNotPossibleTest(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -806,13 +721,6 @@ public class SupplyChainManagerTest {
     
     assertTrue(RUN_MESSAGE, isEqual);
   }
-	
-  /**
-   * compare two array list, if the two lists are the same, return false
-   * @param one first list
-   * @param two second list
-   * @return false or true
-   */
   private boolean compareArrayList(ArrayList<Item> one, ArrayList<Item> two){
     if(one.size()!=two.size()){
         return false;
@@ -837,9 +745,7 @@ public class SupplyChainManagerTest {
     return true;
   }
   
-  /**
-   * testing the createCombinations method, removeDuplicates method and powerSet method with 2 arguments
-   */
+  
   @Test
   public void powerSetTest() {
 	  manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -944,9 +850,7 @@ public class SupplyChainManagerTest {
   }
   
 	
-  /**
-   * testing the sort method
-   */
+	
   @Test
   public void sortTest() {
 	    manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -984,13 +888,9 @@ public class SupplyChainManagerTest {
 	    }
 	    assertTrue(NICESORT_MESSAGE, isSame);
   }
-
 	
-  /**
-   * testing the findUnique method
-   */
   @Test 
-  public void findUniqueTest(){
+  public void findUnique(){
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
     //Initialize some data to put into create combos function 
     ArrayList<ArrayList<Item>> combo = new ArrayList<ArrayList<Item>>();
@@ -1034,10 +934,6 @@ public class SupplyChainManagerTest {
   }
 
 
-  /**
-   * testing the initializeConnection method
-   * @throws Exception
-   */
   @Test
   public void initializeConnectionTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
@@ -1045,11 +941,6 @@ public class SupplyChainManagerTest {
     assertTrue(INITIALIZE_MESSAGE, !manager.getDBConnect().isClosed());
   }
   
-	
-  /**
-   * testing the close method
-   * @throws Exception
-   */
   @Test
   public void closeConnectionTest() throws Exception{
     manager = new SupplyChainManager(DBURL, USERNAME, PASSWORD);
