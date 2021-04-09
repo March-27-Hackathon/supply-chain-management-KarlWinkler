@@ -2,7 +2,7 @@
 
 1. When trying to run the program, make sure the database credentials in main are correct for your system
   
-     - ![HYLreadmeImage](https://user-images.githubusercontent.com/39600307/114244158-35414900-994b-11eb-9412-f4d87d7c0b1d.png)
+     - ![image0](https://user-images.githubusercontent.com/39600307/114247893-81908700-9953-11eb-9356-c1627be759ac.png)
 
 2. After making sure the database credentials are correct, run the program.
 
