@@ -9,7 +9,7 @@ public class OutFile {
 	private ArrayList<String> IDs;
 	private ArrayList<String> companies;
 	private String TotalPrice;
-	private static String filename ="OutputFile.txt";
+	private static String filename ="orderform.txt";
 	
 	//constructor with four parameters, 
 	//creates a new object with the specified request, quantity,
