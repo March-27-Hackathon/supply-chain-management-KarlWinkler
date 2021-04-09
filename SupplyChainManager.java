@@ -74,8 +74,8 @@ public class SupplyChainManager {
 	
 	public boolean run(String name, String tableName, String quantity) {
 		initializeConnection();
-		this.quantity = Integer.valueOf(quantity);
 		try {
+			this.quantity = Integer.valueOf(quantity);
 			//selects the best combo and deletes the items out of the database
 			//throws NoValidCombinationException if there is no way to make a 
 			//full item
@@ -711,9 +711,10 @@ public class SupplyChainManager {
 	}
 
 	/**
-	 * Asks the user to input a type, a furniture category and quantity of items 
-	 * requested in one line or type exit to quit the program.
-	 * if the user types a valid command the program will run and create a text
+	 * Running the program will prompt the user to input a type, a furniture
+	 * category and quantity of items requested in one line or type exit to 
+	 * quit the program.
+	 * If the user types a valid command the program will run and create a text
 	 * file according to whether the order succeeded or failed
 	 * It will run the supply chain manager to give the cheapest combination of 
 	 * items to build a full one or give recommendations for manufacturers that 
@@ -723,12 +724,15 @@ public class SupplyChainManager {
 	 */
 	public static void main(String[] args) {
 
-		//change this to your MySQL account stuff
-		SupplyChainManager myJDBC = new SupplyChainManager(
-				//default required value is":
-				//('jdbc:mysql://localhost/inventory', 'scm', 'ensf409')
-				"jdbc:mysql://localhost/inventory","scm","ensf409");
-		
+				//
+		//Change the following vairiables if necessary
+		//
+		String url = "jdbc:mysql://localhost/inventory";
+		String usrname = "ensf409";
+		String psswrd = "ensf409";
+
+		SupplyChainManager myJDBC = new SupplyChainManager(url, usrname, psswrd);
+
 		Scanner myObj = new Scanner(System.in);
 		String input = "";
 		do {
@@ -741,7 +745,7 @@ public class SupplyChainManager {
 					+ "the program:");
 			input = myObj.nextLine();
 
-			// testing if the input is valid (lazy)
+			// testing if the input is valid by counting spaces
 			int spaces = 0;
 			if(!input.equals("exit")) {
 				for(int i = 0; i < input.length(); i++) {
@@ -749,41 +753,37 @@ public class SupplyChainManager {
 						spaces++;
 					}
 				}
-				
+
 				if(spaces != 2) {
-					System.err.print("Illegal Argument Exception, Program "
-							+ "Terminated!");
-					break;
+					//print error message
+					System.err.println("Illegal Argument");
+				}
+				else {
+					//parsing the input
+					int i = 0;
+					while(input.charAt(i) != ' ') {
+						i++;
+					}
+
+					int i1 = i++;
+
+					while(input.charAt(i) != ' ') {
+						i++;
+					}
+					//running the program and giving the correct output message
+					boolean runBool = myJDBC.run(input.substring(0, i1), 
+							input.substring(i1 + 1, i), input.substring(i+1));
+
+					System.out.println();
+					if(runBool) {
+						System.out.println("Output file generated: Order Fulfilled");
+					}
+					else {
+						System.out.println("Output file generated: Order Failed");
+					}
+					System.out.println();
 				}
 			}
-			else{
-				break;
-			}
-			
-			//parsing the input
-			int i = 0;
-			while(input.charAt(i) != ' ') {
-				i++;
-			}
-			
-			int i1 = i++;
-			
-			while(input.charAt(i) != ' ') {
-				i++;
-			}
-			//running the program and giving the correct output message
-			boolean runBool = myJDBC.run(input.substring(0, i1), 
-					input.substring(i1 + 1, i), input.substring(i+1));
-			
-			System.out.println();
-			if(runBool) {
-				System.out.println("Output file generated: Order Fulfilled");
-			}
-			else {
-				System.out.println("Output file generated: Order Failed");
-			}
-			System.out.println();
-			//this will never be false because if it is it will break earlier on
 		} while(!input.equalsIgnoreCase("exit"));
 		myObj.close();
 	}
