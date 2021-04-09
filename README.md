@@ -25,5 +25,5 @@ Project By group 15:
 
 Karl Winkler,
 Maxwell Botham,
-Rui Guan,
+Rui Guan, and
 Zheng Chen.
