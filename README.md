@@ -1,4 +1,4 @@
-# supply-chain-management
+# Supply Chain Manager Basic User Guide
 
 When trying to run the program, make sure the database credentials in main are correct for your system
 
