@@ -110,7 +110,7 @@ public class SupplyChainManager {
 				//prints out a form saying that no Item could be created
 				OutFile f = new OutFile(tableName, quantity, 
 						selectManufacturers());
-				f.writeNoneAvailable(name);
+				f.writeNoneAvailable(tableName);
 			} catch (IOException e1) {
 				System.err.print(e);
 			}
