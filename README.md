@@ -17,10 +17,10 @@ and prompt for a new input
 ![image3](https://user-images.githubusercontent.com/39600307/114245087-f7452480-994c-11eb-8b2a-f9a12a0704b3.png)
 
 this process will also create an output file named OutputFile.txt in the same folder as the program
+
 ![image4](https://user-images.githubusercontent.com/39600307/114245860-80a92680-994e-11eb-8863-9c4903a46529.png)
 
 This file will be the order form
-
 after the user is done using the program, typing exit into the command line will quit the program.
 ![image 5](https://user-images.githubusercontent.com/39600307/114246071-eeede900-994e-11eb-9d56-db856e8b937a.png)
 
