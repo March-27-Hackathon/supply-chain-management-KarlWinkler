@@ -725,10 +725,10 @@ public class SupplyChainManager {
 	public static void main(String[] args) {
 
 				//
-		//Change the following vairiables if necessary
+		//Change the following variables if necessary
 		//
 		String url = "jdbc:mysql://localhost/inventory";
-		String usrname = "ensf409";
+		String usrname = "scm";
 		String psswrd = "ensf409";
 
 		SupplyChainManager myJDBC = new SupplyChainManager(url, usrname, psswrd);
