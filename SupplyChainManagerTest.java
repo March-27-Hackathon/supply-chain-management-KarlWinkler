@@ -1,3 +1,23 @@
+/**
+@author Karl Winkler, Zheng Chen, Maxwell Botham, and Rui Guan
+@version 5.1
+@since 1.0
+*/
+/*
+In this program, every feature of our main class, SupplyChainManager, is tested, either 
+directly or indirectly. Some of our tests are unit tests, testing a single function, 
+giving it hardcoded data and expecting hardcoded results. This is to ensure that as we 
+maintain our functions, they don't break. We have considered boundary cases for our unit tests, 
+testing exceptions, etc. We also wrote end to end tests that ensure that the correct output file is
+generated, given a specific input, given the SQL database is inventory.sql.
+
+IMPORTANT: Please only run these tests on the database given, inventory.sql. Although some
+of these tests may work on other databases, they are only intended to be used to confirm our class
+against inventory.sql.
+*/
+
+package edu.ucalgary.ensf409;
+
 import static org.junit.Assert.*;
 import org.junit.*;
 import java.util.Arrays;
@@ -5,35 +25,16 @@ import jdk.jfr.Timestamp;
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
-
-//import java.sql.*;
 import java.util.ArrayList;
 
-/*
-FUNCTIONS TO TEST:
-
-COMPLETED:
-selectBestCombinatiosTest
-initializeConnectionTest
-closeConnectionTest
-selectItems
-selectManufacturers
-SupplyChainManager
-getPriceForCombination
-removeDuplicates
-createCombinations
-run
-
-
-deleteID - ? tested thoroughly in run...
-
-make sure initialize and close is working as expected
-*/
-
 public class SupplyChainManagerTest {
+	
+  //THE FOLLOWING THREE FIELDS ARE THE 
   public static String USERNAME = "max";
   public static String PASSWORD = "ensf409";
   public static String DBURL = "jdbc:mysql://localhost/INVENTORY";
+	
+  //MESSAGES DECLARED FOR THE FAILURE EXPLANATION OF DIFFERENT TEST CLASSES
   public static String CONSTRUCTOR_MESSAGE = "The constructor of SupplyChainManager failed to initialize constants.";
   public static String selectItems_MESSAGE = "The function selectItems of SupplyChainManager failed to return the correct ArrayList<Item>.";
   public static String SELECTMANU_MESSAGE = "The function selectManufacturers of SupplyChainManager failed to return the correct ArrayList<String>.";
@@ -46,11 +47,13 @@ public class SupplyChainManagerTest {
   public static String INITIALIZE_MESSAGE = "The function initializeConnection of SupplyChainManager failed to initialize the connection.";
   public static String CLOSE_MESSAGE = "The function close of SupplyChainManager failed to initialize the connection.";
   public static String RUN_MESSAGE = "The function run of SupplyChainManager failed to produce the expected output file.";
+
   private SupplyChainManager manager;
   private OutFile outfile;
 	
   /**
-   * constructorTest(), used for testing the constructor
+   * constructorTest(), used for testing the constructor. Ensures DBURL, USERNAME, and PASSWORD
+   were initiated.
    */
   @Test
   public void constructorTest() {
@@ -64,7 +67,8 @@ public class SupplyChainManagerTest {
   }
   
   /**
-   * testing the selectItems method if the type of items is desk
+   * A test method to run against inventory.sql if the type of items is desk.
+   Asserts the results are in fact the Traditional desks of inventory.sql
    * @throws Exception
    */
   @Test
@@ -87,8 +91,8 @@ public class SupplyChainManagerTest {
 
 	
   /**
-   * testing the selectItems method if the type of items is chair
-   * @throws Exception
+   * A test method to run against inventory.sql if the type of items is chair.
+   Asserts the results are in fact the Mesh chairs of inventory.sql
    */
   @Test
   public void selectItemsChairTest() throws Exception{
@@ -110,8 +114,8 @@ public class SupplyChainManagerTest {
 
 	
   /**
-   * testing the selectItems method if the type of items is filing
-   * @throws Exception
+   * A test method to run against inventory.sql if the type of items is filing.
+   Asserts the results are in fact the Large filings of inventory.sql
    */
   @Test
   public void selectItemsFilingTest() throws Exception{
@@ -135,8 +139,8 @@ public class SupplyChainManagerTest {
 
 	
   /**
-   * testing the selectItems method if the type of items is lamp
-   * @throws Exception
+   * A test method to run against inventory.sql if the type of items is lamp.
+   Asserts the results are in fact the Swing Arm lamps of inventory.sql
    */
   @Test
   public void selectItemsLampTest() throws Exception{
@@ -157,8 +161,8 @@ public class SupplyChainManagerTest {
   }
 
   /**
-   * testing the selectItems method when the type of items doesn't exist
-   * @throws Exception
+   * A test method to run against inventory.sql if the type of items isn't in
+   the database.. Asserts the function throws the expected exception.
    */
   @Test(expected = Exception.class)
   public void selectItemsFakeTypeTest() throws Exception{
@@ -171,7 +175,9 @@ public class SupplyChainManagerTest {
 
 	
   /**
-   * testing the selectManufactures method
+   * A test method to run against inventory.sql to ensure the correct 
+   manufacturers are found. Asserts the results are in fact the manufacturers
+   defined in inventory.sql.
    * @throws Exception
    */
   @Test
@@ -191,8 +197,9 @@ public class SupplyChainManagerTest {
   
 	
   /**
-   * testing the createCombinations method with one argument
-   * @throws Exception
+   * testing the createCombinations method with a list of 4 items.
+   * This function should return all of the possible ways the items
+   * can be combined to make a full item.
    */
   @Test
   public void createCombinationsTest() throws Exception{
@@ -265,8 +272,9 @@ public class SupplyChainManagerTest {
   }
 	
   /**
-   * testing the createCombinations method with one argument if there is no best combination
-   * @throws Exception
+   * Testing the function createCombinations, with a set of items
+   * where no combinations can be made.
+   * This function should return the empty set.
    */
   
   @Test
@@ -300,7 +308,9 @@ public class SupplyChainManagerTest {
 
 	
   /**
-   * testing the createCombinations method  with one argument if the argument is not available
+   * This test function tests the createCombinations function with
+   * an empty argument, which should create an exception.
+   * Asserts that the exception is thrown.
    */
   @Test(expected = IllegalArgumentException.class)
   public void createCombinationsExceptionTest(){
@@ -312,7 +322,9 @@ public class SupplyChainManagerTest {
  
 	
   /**
-   * test the createCombinations method with one argument and removeDuplicates method
+   * Test the removeDuplicates() function with a list containing a few duplicates. 
+   * Assert that the function removeDuplicates() in fact removes the duplicate items
+   * in each set.
    */
   @Test
   public void removeDuplicatesTest(){
@@ -391,7 +403,10 @@ public class SupplyChainManagerTest {
 
 	
    /**
-   * test the createCombinations method  with one argument and removeDuplicates method if there is no duplicated items
+   * Function to test the removeDuplicates() function with a set that has 
+   * no duplicates.
+   * This test will pass if the removeDuplicates() function returns exactly what 
+   * it was passed.
    */
   @Test
   public void removeDuplicatesNoDuplicatesTest(){
@@ -463,7 +478,10 @@ public class SupplyChainManagerTest {
   }
 
   /**
-   * test the createCombinations method  with one argument, removeDuplicates method and getPriceForCombinationsTest 
+   * Test for the getPriceForCombinations() function. 
+   * This test creates the combinations of items, then calls the
+   * getPriceForCombinations() function. It ensures that the getPrice
+   * function adds up all of the prices of the combinations correctly.
    */
   @Test
   public void getPriceForCombinationsTest(){
@@ -535,8 +553,9 @@ public class SupplyChainManagerTest {
   
 	
   /**
-   * test the createCombinations method  with one argument, removeDuplicates method and getPriceForCombinationsTest 
-   * if there is no property combination
+   * This test tests the getPriceForCombinations() function
+   * when it is passed an empty ArrayList of ArrayLists. 
+   * This test will pass if the function returns an empty arrayList.
    */
   @Test
   public void getPriceForCombinationsEmptyTest(){
@@ -559,7 +578,10 @@ public class SupplyChainManagerTest {
  
 	
   /**
-   * testing the selectBestCombination method
+   * This function tests the selectBestCombinations() function on a list
+   * of items, 5 long (from inventory.sql). 
+   * This test will pass if the function does correctly select the
+   * combinations.
    * @throws Exception
    */
   @Test
@@ -599,7 +621,10 @@ public class SupplyChainManagerTest {
   }
   
   /**
-   * testing the selectBestCombination method if the the argument is not available
+   * This test calls the selectBestCombination() function, with a
+   * list of items that are all missing one common part, and therefore
+   * can't form a whole item.
+   * This test will pass if the function throws the expected exception.
    * @throws Exception
    */
   @Test(expected = IndexOutOfBoundsException.class)
@@ -621,8 +646,10 @@ public class SupplyChainManagerTest {
 
 	
    /**
-   * testing the initializeConnection method, close method and run method
-   * if the type of method is desk
+   * Testing the run() function when the requested items are desks.
+   * This test will return true only if the run() function produces
+   * the expected output file, for the given input. 
+   * This test relies on using the inventory.sql database.
    */
   @Test
   public void runDeskTest(){
@@ -688,8 +715,12 @@ public class SupplyChainManagerTest {
   
 	
   /**
-   * testing the initializeConnection method, close method and run method
-   * if the quantity is 2
+   * Testing the run() function when the requested items are desks.
+   * This test will return true only if the run() function produces
+   * the expected output file, for the given input. 
+   * This test relies on using the inventory.sql database.
+   * The difference between this and the previous test is that this one
+   * requests 2 desks instead of just 1. 
    */
   @Test
   public void runDeskTwoQuantityTest(){
@@ -758,8 +789,13 @@ public class SupplyChainManagerTest {
 
 	
   /**
-   * testing the initializeConnection method, close method and run method
-   * if there is no fulfilled result
+   * Testing the run() function when the requested items are desks.
+   * However, in this version of the test, 4 items are requested.
+   * With the contents of inventory.sql, 4 desks cannot be created.
+   * This test will return true only if the run() function produces
+   * the expected output file, for the given input, which is the "not
+   * possible" output.
+   * This test relies on using the inventory.sql database.
    */
   @Test
   public void runDeskNotPossibleTest(){
